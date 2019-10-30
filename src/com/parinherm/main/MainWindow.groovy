@@ -1,10 +1,7 @@
 package com.parinherm.main
 
 import org.eclipse.core.databinding.observable.Realm
-import org.eclipse.jface.action.MenuManager
-import org.eclipse.jface.action.Separator
-import org.eclipse.jface.action.StatusLineManager
-import org.eclipse.jface.action.ToolBarManager
+import org.eclipse.jface.action.*
 import org.eclipse.jface.databinding.swt.DisplayRealm
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
@@ -17,24 +14,14 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IAction;
-
-
-import org.eclipse.jface.layout.GridDataFactory
-import org.eclipse.swt.custom.CTabFolder
-import org.eclipse.swt.custom.CTabItem
-import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.events.SelectionListener
-import org.eclipse.swt.layout.GridData
-import org.eclipse.swt.layout.GridLayout
-import org.eclipse.swt.widgets.Event
-import org.eclipse.swt.widgets.Listener
-import org.eclipse.swt.widgets.ToolBar
+import org.eclipse.jface.dialogs.*
+import org.eclipse.swt.widgets.*
 
 import com.parinherm.ui.view.DataBindingTest
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class MainWindow extends ApplicationWindow {
 	
 	private ImageRegistry imageRegistry
@@ -42,18 +29,20 @@ class MainWindow extends ApplicationWindow {
 	private final static String IMAGE_ACTIVITY_LARGE = "activitylarge"
 	private final static String IMAGES_PATH = "/images/"
 	
-	private IAction exitAction = new Action("E&xit\tCtrl+X") {
-		void run() {
-			close()
-		}
-	}
 	
-	MainWindow() {
-		super(null)
-		this.setupImages()
-		this.addMenuBar()
-		this.addToolBar(SWT.FLAT | SWT.WRAP)
-		this.addStatusLine()
+	MainWindow(Shell parentShell) {
+		super(parentShell)
+		try {
+		
+			this.setupImages()
+			this.addMenuBar()
+			this.addToolBar(SWT.FLAT | SWT.WRAP)
+			this.addStatusLine()
+			
+		}catch(Exception e) {
+			println e.message
+			throw e
+		}
 	}
 	
 	private def setupImages() {
@@ -82,33 +71,54 @@ class MainWindow extends ApplicationWindow {
 		
 		try {
 			println "create the goddamned"
+			
+			
+			Action actionOpenFile = new Action("Open") {
+				@Override
+				public void run() {
+					FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+					final String file = dialog.open();
+					if(file != null) {
+						try {
+							
+							setStatus("File loaded successfully: ");
+						} catch (IOException e) {
+							e.printStackTrace();
+							setStatus("Failed to load file: ");
+						}
+					}
+				}
+			}
+				
+			actionOpenFile.description = "blah"
+			actionOpenFile.actionDefinitionId = "crap"
 			MenuManager mm = new MenuManager("menu")
 
 			
 			MenuManager fileMenu = new MenuManager("&File")
 			fileMenu.add(new Separator())
-			fileMenu.add(exitAction)
+			fileMenu.add(actionOpenFile)
 			mm.add(fileMenu)
 			
 			MenuManager helpMenu = new MenuManager("&Help")
 			//helpMenu.add(ApplicationData.instance().getAction(ApplicationData.ABOUT_ACTION_KEY));
-			mm.add(helpMenu);
+			//mm.add(helpMenu);
 			
-			mm.update(true)
 			mm
 		}
-		catch (e) {
+		catch (Exception e) {
 			println e
+			throw e
 		}
 	}
 	
 	protected ToolBarManager createToolBarManager(int style) {
 		def tbm = new ToolBarManager(SWT.NONE)
 		
-		ActionContributionItem item = new ActionContributionItem(exitAction)
-		item.setMode(ActionContributionItem.MODE_FORCE_TEXT)
-		tbm.add(item);
-		
+//		ActionContributionItem item = new ActionContributionItem(exitAction)
+//		item.setMode(ActionContributionItem.MODE_FORCE_TEXT)
+//		tbm.add(item);
+//		
 		tbm.update(true)
 		tbm
 	}
@@ -137,21 +147,25 @@ class MainWindow extends ApplicationWindow {
 	
 	
 	static void main(String... args) {
-		def display = Display.getDefault()
-		Runnable run = {
-			try {
-				def mainwin = new MainWindow()
-				mainwin.setBlockOnOpen(true)
-
+		
+		try
+		{
+			def display = Display.getDefault()
+			Runnable run = {
+				try {
+					def mainwin = new MainWindow(null)
+					mainwin.setBlockOnOpen(true)
+					mainwin.open()
+					//Display.getCurrent().dispose()
+				} catch (e) {
+					println e.message
+					println e.stackTrace
+				}
 				
-				mainwin.open()
-				Display.getCurrent().dispose()
-			} catch (e) {
-				println e.message
-				println e.stackTrace
 			}
-			
+			Realm.runWithDefault(DisplayRealm.getRealm(display), run)
+		} catch (Exception e) {
+			println e.message
 		}
-		Realm.runWithDefault(DisplayRealm.getRealm(display), run)
 	}	
 }
