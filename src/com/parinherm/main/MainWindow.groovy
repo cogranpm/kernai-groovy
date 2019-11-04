@@ -14,6 +14,8 @@ import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 
+import com.parinherm.view.DataBindingView
+
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -61,14 +63,14 @@ class MainWindow extends ApplicationWindow {
 		Image activityLarge = imageRegistry.get(IMAGE_ACTIVITY_LARGE)
 		def images = [activitySmall, activityLarge] as Image[]
 		getShell().setImages(images)
+		
+		DataBindingView view = new DataBindingView(container)
 		container
 	}
 	
 	MenuManager createMenuManager() {
 		
 		try {
-			println "create the goddamned"
-			
 			
 			IAction actionOpenFile = new Action("Open") {
 				@Override
