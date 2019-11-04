@@ -17,8 +17,11 @@ import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Table
@@ -65,6 +68,14 @@ class DataBindingView extends Composite {
 		lblStringTest.text = "String Test:"
 		txtStringTest = new Text(editComposite, SWT.NONE)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtStringTest)
+		Button btnTest = new Button(editComposite, SWT.PUSH)
+		btnTest.text = "Update"
+		btnTest.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				model.items[0].stringTest = "changed me"
+			}
+		})
 		
 		sashForm.setWeights([1, 3] as int[])
 		
