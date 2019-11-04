@@ -7,17 +7,12 @@ import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
+import org.eclipse.swt.graphics.Device
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.Point
+import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.layout.FillLayout
-import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Control
-import org.eclipse.swt.widgets.Display
-import org.eclipse.swt.widgets.Shell
-import org.eclipse.jface.dialogs.*
 import org.eclipse.swt.widgets.*
-
-import com.parinherm.ui.view.DataBindingTest
 
 import groovy.transform.CompileStatic
 
@@ -56,14 +51,16 @@ class MainWindow extends ApplicationWindow {
 	/* overrides */
 	
 	protected Control createContents(Composite parent) {
-		
-
-		
-		parent.setLayout(new FillLayout())
+//		parent.setLayout(new FillLayout())
 		def container = new Composite(parent, SWT.NONE)
 		container.setLayout(new FillLayout())
-		def dbTest = new DataBindingTest(container)
+		//def dbTest = new DataBindingTest(container)
 		setStatus("what in the hell?")
+		getShell().text = "Kernai"
+		Image activitySmall = imageRegistry.get(IMAGE_ACTVITY_SMALL)
+		Image activityLarge = imageRegistry.get(IMAGE_ACTIVITY_LARGE)
+		def images = [activitySmall, activityLarge] as Image[]
+		getShell().setImages(images)
 		container
 	}
 	
@@ -73,7 +70,7 @@ class MainWindow extends ApplicationWindow {
 			println "create the goddamned"
 			
 			
-			Action actionOpenFile = new Action("Open") {
+			IAction actionOpenFile = new Action("Open") {
 				@Override
 				public void run() {
 					FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
@@ -128,6 +125,10 @@ class MainWindow extends ApplicationWindow {
 		sl
 	}
 	
+	
+	/* there is some kind of bug here
+	 * if configure shell is called then the menus do not appear
+	 * need to do this stuff in the createContents instead
 	void configureShell(Shell newShell) {
 		newShell.setText("Kernai")
 		Image activitySmall = imageRegistry.get(IMAGE_ACTVITY_SMALL)
@@ -135,9 +136,12 @@ class MainWindow extends ApplicationWindow {
 		def images = [activitySmall, activityLarge] as Image[]
 		newShell.setImages(images)
 	}
+	*/
 	
 	protected Point getInitialSize() {
-		return new Point(900, 800)
+		def display = Display.getDefault()
+		Rectangle rect = display.clientArea
+		return new Point((rect.width / 2) as int, (rect.height / 2) as int)
 	}
 	
 	public boolean close() {
@@ -157,7 +161,7 @@ class MainWindow extends ApplicationWindow {
 					mainwin.setBlockOnOpen(true)
 					mainwin.open()
 					//Display.getCurrent().dispose()
-				} catch (e) {
+				} catch (Exception e) {
 					println e.message
 					println e.stackTrace
 				}
