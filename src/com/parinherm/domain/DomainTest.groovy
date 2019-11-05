@@ -9,6 +9,7 @@ class DomainTest {
 	@Bindable String stringTest
 	@Bindable int intTest	
 	
+	
 }
 
 
