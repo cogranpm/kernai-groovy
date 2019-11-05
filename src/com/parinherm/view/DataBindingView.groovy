@@ -28,6 +28,8 @@ import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ColumnWeightData
 import org.eclipse.jface.viewers.ILabelProvider
+import org.eclipse.jface.viewers.ISelectionChangedListener
+import org.eclipse.jface.viewers.SelectionChangedEvent
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
@@ -60,12 +62,18 @@ class DataBindingView extends Composite {
 	//toolbar buttons
 	Button btnSave
 	Button btnDelete
-	
+	Boolean selectionChange = false
 	
 	IChangeListener listener = new IChangeListener() {
 		@Override
 		public void handleChange(ChangeEvent event) {
-			model.dirty = true
+			if(!selectionChange) {
+				model.dirty = true
+			}
+			else
+			{
+				selectionChange = false
+			}
 		}
 	}
 	
@@ -93,6 +101,13 @@ class DataBindingView extends Composite {
 		listComposite.setLayout(tableLayout)
 		tableLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(100))
 		listView.setContentProvider(contentProvider)
+		listView.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent arg0) {
+				selectionChange = true
+				
+			}
+		})
 		
 		lblStringTest = new Label(editComposite, SWT.NONE)
 		lblStringTest.text = "String Test:"
@@ -191,14 +206,16 @@ class DataBindingView extends Composite {
 		// register the listener to all bindings
 		for (def o : bindings) {
 			def b  = o as Binding
-			println b.target
+			//there is an error here as selecting item in list triggers the dirty flag to be true
 			b.target.addChangeListener(listener)
 		}
 		
 		//save button binding
-		IObservableValue save = WidgetProperties.enabled().observe(btnSave);
-		IObservableValue mdirty= BeanProperties.value("dirty").observe(model);
-		def dirtyBinding = ctx.bindValue(save, mdirty);
+		IObservableValue save = WidgetProperties.enabled().observe(btnSave)
+		IObservableValue mdirty= BeanProperties.value("dirty").observe(model)
+		def dirtyBinding = ctx.bindValue(save, mdirty)
+		
+		//this is only needed to set enabled on the action associated with toolbar button
 		dirtyBinding.getTarget().addChangeListener(new IChangeListener() {
 			@Override
 			public void handleChange(ChangeEvent event) {
