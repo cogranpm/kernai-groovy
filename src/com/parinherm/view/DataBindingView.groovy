@@ -69,9 +69,8 @@ class DataBindingView extends Composite {
 		public void handleChange(ChangeEvent event) {
 			if(!selectionChange) {
 				model.dirty = true
-			}
-			else
-			{
+			} else {
+				//if we get here then a list change has occurred, reset the flag
 				selectionChange = false
 			}
 		}
@@ -105,7 +104,6 @@ class DataBindingView extends Composite {
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
 				selectionChange = true
-				
 			}
 		})
 		
