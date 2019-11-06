@@ -7,6 +7,7 @@ import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.conversion.IConverter
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.IObservableList
@@ -26,11 +27,13 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.viewers.ArrayContentProvider
 import org.eclipse.jface.viewers.ColumnWeightData
 import org.eclipse.jface.viewers.ComboViewer
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.ISelectionChangedListener
 import org.eclipse.jface.viewers.IStructuredSelection
+import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.SelectionChangedEvent
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
@@ -42,12 +45,14 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
-
 import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
 
+import com.parinherm.domain.DataTypesList
 import com.parinherm.domain.DomainTest
+import com.parinherm.domain.ListItemDetail
 import com.parinherm.ui.controls.Label
+
 import groovy.transform.CompileStatic
 
 
@@ -69,7 +74,7 @@ class DataBindingView extends Composite {
 	Label lblError
 	
 	/* databinding members */
-	DataBindingContext ctx
+	DataBindingContext ctx = new DataBindingContext()
 	DatabindingViewModel model = new DatabindingViewModel()
 	WritableList<DomainTest> input
 	WritableValue<DomainTest> value
@@ -90,16 +95,10 @@ class DataBindingView extends Composite {
 			/* selectionChange flag is set on the list selection event handler, 
 			 * which fires before this databinding handler fires
 			 * allows view to ignore list selection changes when setting the dirty flag */
+			
+			
 			if(!selectionChange) {
 				model.dirty = true
-			} else {
-				//if we get here then a list change has occurred, reset the flag
-				selectionChange = false
-				
-				//can set the currently selected entity on a list selection change
-				IStructuredSelection selection = listView.getStructuredSelection()
-				selectedItem = selection.firstElement as DomainTest
-
 			}
 		}
 	}
@@ -120,27 +119,51 @@ class DataBindingView extends Composite {
 		listTable = listView.getTable()
 		listTable.setHeaderVisible(true)
 		listTable.setLinesVisible(true)
-		TableViewerColumn nameColumn = new TableViewerColumn(listView, SWT.LEFT)
-		nameColumn.getColumn().setText("Name")
-		nameColumn.getColumn().setResizable(false)
-		nameColumn.getColumn().setMoveable(false)
+		
+		TableViewerColumn stringTestColumn = new TableViewerColumn(listView, SWT.LEFT)
+		stringTestColumn.getColumn().setText("String Test")
+		stringTestColumn.getColumn().setResizable(false)
+		stringTestColumn.getColumn().setMoveable(false)
+		
+		TableViewerColumn comboTestColumn = new TableViewerColumn(listView, SWT.LEFT)
+		comboTestColumn.getColumn().setText("Combo Test")
+		comboTestColumn.getColumn().setResizable(false)
+		comboTestColumn.getColumn().setMoveable(false)
+		
+		
 		TableColumnLayout tableLayout = new TableColumnLayout()
 		listComposite.setLayout(tableLayout)
-		tableLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(100))
+		tableLayout.setColumnData(stringTestColumn.getColumn(), new ColumnWeightData(100))
+		tableLayout.setColumnData(comboTestColumn.getColumn(), new ColumnWeightData(100))
+		
 		listView.setContentProvider(contentProvider)
 		listView.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
 				selectionChange = true
+				IStructuredSelection selection = listView.getStructuredSelection()
+				selectedItem = selection.firstElement as DomainTest
+				addDataBindings()
 			}
 		})
 		
 		lblStringTest = new Label(editComposite, "String Test:")
-		//lblStringTest.text = "String Test:"
 		txtStringTest = new Text(editComposite, SWT.NONE)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtStringTest)
 		
 		lblComboTest = new Label(editComposite, "Combo Test:")
+		cboComboTest = new ComboViewer(editComposite)
+		cboComboTest.setContentProvider(ArrayContentProvider.getInstance())
+		cboComboTest.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element)
+			{
+				ListItemDetail item = element as ListItemDetail
+				item.description
+			}
+		})
+		cboComboTest.input = DataTypesList.items
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(cboComboTest.combo)
 		
 		
 		/* error label */
@@ -177,20 +200,30 @@ class DataBindingView extends Composite {
 		
 		editComposite.setLayout(new GridLayout(2, false))
 		setLayout(new FillLayout())
-		addDataBindings()
+		addListBindings()
 	}
 	
-	private def addDataBindings() {
-		ctx = new DataBindingContext()
-		
+	private def addListBindings() {
 		IObservableSet<DomainTest> knownElements = contentProvider.getKnownElements()
-		final IObservableMap names = BeanProperties.value(DomainTest.class, "stringTest").observeDetail(knownElements);
-		IObservableMap[] labelMaps = [names] as IObservableMap[];
+		final IObservableMap stringTest = BeanProperties.value(DomainTest.class, "stringTest").observeDetail(knownElements)
+		final IObservableMap comboTest = BeanProperties.value(DomainTest.class, "comboTest").observeDetail(knownElements)
+		IObservableMap[] labelMaps = [stringTest, comboTest] as IObservableMap[]
 		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
 				@Override
 				public String getColumnText(Object element, int columnIndex) {
-					DomainTest mc = (DomainTest)element;
-					return mc.getStringTest();
+					DomainTest mc = element as DomainTest
+					switch (columnIndex) {
+						case 0:
+							return mc.stringTest
+							break
+						case 1:
+						//error, should be the friendly description, not the code
+							return mc.comboTest
+							break
+						default:
+							return ""
+					}
+					
 				}
 		}
 		listView.setLabelProvider(labelProvider)
@@ -198,14 +231,39 @@ class DataBindingView extends Composite {
 		input = new WritableList(el, DomainTest.class)
 		listView.setInput(input)
 		
+
+	}
+	
+	private def addDataBindings() {
+		ctx.dispose()
+		IObservableList dabindings = ctx.getValidationStatusProviders()
+		dabindings.each { element ->
+			def b = element as Binding
+			ctx.removeBinding(b)
+		}
 		
 		//master detail bindings
 		//the detail field
 		IObservableValue target = WidgetProperties.text(SWT.Modify).observe(txtStringTest)
+		IObservableValue targetComboTest = ViewerProperties.singleSelection().observe(cboComboTest)
 		//the viewer
 		IViewerObservableValue selectedEntity = ViewerProperties.singleSelection().observe(listView)
 		//the property in the domain entity
 		IObservableValue detailValue = BeanProperties.value("stringTest", String.class).observeDetail(selectedEntity)
+		IObservableValue valueComboTest = BeanProperties.value("comboTest", String.class).observeDetail(selectedEntity)
+		
+		//converting from a combo lookup to a field type, say string
+		IConverter convertListItemDetail = IConverter.create(ListItemDetail.class, String.class, 
+			{ 
+				ListItemDetail o -> o?.code
+			}
+		)
+		
+		//converting from a field type to a lookup type
+		//need to create a finder method to do it
+		IConverter convertToListItemDetail = IConverter.create(String.class, ListItemDetail.class, 
+			{ String o -> DataTypesList.findByCode(o)}
+			)
 	   
 		/* just the validators and decorators in the name field */
 		IValidator validator = new IValidator() {
@@ -224,19 +282,26 @@ class DataBindingView extends Composite {
 		//Binding nameBinding = ctx.bindValue(nameTargetObservable, nameModelObservable, nameUpdateStrategy, null);
 		
 		def detailBinding = ctx.bindValue(target, detailValue, updateStrategy, null)
+		def comboTestBinding = ctx.bindValue(targetComboTest, valueComboTest, 
+			UpdateValueStrategy.create(convertListItemDetail), UpdateValueStrategy.create(convertToListItemDetail))
 		
 
 
 		/***********************************************
-		 no more bindings to appear above this point
-		 other than fields that edit the current entity
-		 as it will mess up the dirty binding
+		there is a problem with dirty binding
+		using the change event on the listViewer to 
+		set a flag saying ignore any change bindings (ie a list selection
+		should not trigger a dirty flag)
+		we are using the binding listener to check for changes to fields
+		which should update the dirty flag
+		problem is a listviewer change, signals the field bindings change listener to fire
+		how do we tell it that a list change should be ignored for setting dirty flag
 		 ************************************************/
  
 		
 		//dirty binding
 		IObservableList bindings = ctx.getValidationStatusProviders()
-		bindings.each { element -> 
+		bindings.each { element ->
 			def b = element as Binding
 			b.target.addChangeListener(listener)
 		}
@@ -285,7 +350,7 @@ class DataBindingView extends Composite {
 			}
 		})
 		
-
+		selectionChange = false
 		
 	}
 }
