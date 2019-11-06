@@ -1,6 +1,7 @@
 package com.parinherm.view
 
 
+import java.time.LocalDate
 
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.Binding
@@ -25,10 +26,10 @@ import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
+//import org.eclipse.jface.internal.databinding.swt.DateTimeSelectionProperty
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ArrayContentProvider
-import org.eclipse.jface.viewers.ColumnWeightData
 import org.eclipse.jface.viewers.ComboViewer
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.ISelectionChangedListener
@@ -45,13 +46,17 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.DateTime
+import org.eclipse.swt.widgets.Spinner
 import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
 
 import com.parinherm.domain.DataTypesList
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.ListItemDetail
+import com.parinherm.ui.controls.DateTimeSelectionProperty
 import com.parinherm.ui.controls.Label
+import com.parinherm.ui.controls.TableViewerColumnHelper
 
 import groovy.transform.CompileStatic
 
@@ -65,6 +70,12 @@ class DataBindingView extends Composite {
 	
 	Label lblComboTest
 	ComboViewer cboComboTest
+	
+	Label lblIntTest
+	Spinner spinIntTest
+	
+	Label lblCreatedDate
+	DateTime dteCreatedDate
 	
 	/* view controls for selecting current entity */
 	TableViewer listView
@@ -119,22 +130,14 @@ class DataBindingView extends Composite {
 		listTable = listView.getTable()
 		listTable.setHeaderVisible(true)
 		listTable.setLinesVisible(true)
-		
-		TableViewerColumn stringTestColumn = new TableViewerColumn(listView, SWT.LEFT)
-		stringTestColumn.getColumn().setText("String Test")
-		stringTestColumn.getColumn().setResizable(false)
-		stringTestColumn.getColumn().setMoveable(false)
-		
-		TableViewerColumn comboTestColumn = new TableViewerColumn(listView, SWT.LEFT)
-		comboTestColumn.getColumn().setText("Combo Test")
-		comboTestColumn.getColumn().setResizable(false)
-		comboTestColumn.getColumn().setMoveable(false)
-		
-		
 		TableColumnLayout tableLayout = new TableColumnLayout()
 		listComposite.setLayout(tableLayout)
-		tableLayout.setColumnData(stringTestColumn.getColumn(), new ColumnWeightData(100))
-		tableLayout.setColumnData(comboTestColumn.getColumn(), new ColumnWeightData(100))
+		
+		TableViewerColumn stringTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+		TableViewerColumn comboTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+		TableViewerColumn createdDateColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+
 		
 		listView.setContentProvider(contentProvider)
 		listView.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -151,6 +154,11 @@ class DataBindingView extends Composite {
 		txtStringTest = new Text(editComposite, SWT.NONE)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtStringTest)
 		
+		lblIntTest = new Label(editComposite, "Int Test:")
+		spinIntTest = new Spinner(editComposite, SWT.NONE)
+		spinIntTest.setMinimum(Integer.MIN_VALUE)
+		spinIntTest.setMaximum(Integer.MAX_VALUE)
+		
 		lblComboTest = new Label(editComposite, "Combo Test:")
 		cboComboTest = new ComboViewer(editComposite)
 		cboComboTest.setContentProvider(ArrayContentProvider.getInstance())
@@ -164,6 +172,9 @@ class DataBindingView extends Composite {
 		})
 		cboComboTest.input = DataTypesList.items
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(cboComboTest.combo)
+		
+		lblCreatedDate = new Label(editComposite, "Date Created")
+		dteCreatedDate = new DateTime(editComposite, SWT.DROP_DOWN | SWT.DATE)
 		
 		
 		/* error label */
@@ -206,8 +217,10 @@ class DataBindingView extends Composite {
 	private def addListBindings() {
 		IObservableSet<DomainTest> knownElements = contentProvider.getKnownElements()
 		final IObservableMap stringTest = BeanProperties.value(DomainTest.class, "stringTest").observeDetail(knownElements)
+		final IObservableMap intTest = BeanProperties.value(DomainTest.class, "intTest").observeDetail(knownElements)
 		final IObservableMap comboTest = BeanProperties.value(DomainTest.class, "comboTest").observeDetail(knownElements)
-		IObservableMap[] labelMaps = [stringTest, comboTest] as IObservableMap[]
+		def createdDate = BeanProperties.value(DomainTest.class, "createdDate").observeDetail(knownElements)
+		IObservableMap[] labelMaps = [stringTest, intTest, comboTest, createdDate] as IObservableMap[]
 		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
 				@Override
 				public String getColumnText(Object element, int columnIndex) {
@@ -217,8 +230,14 @@ class DataBindingView extends Composite {
 							return mc.stringTest
 							break
 						case 1:
+							return mc.intTest as String
+							break
+						case 2:
 						//error, should be the friendly description, not the code
 							return mc.comboTest
+							break
+						case 3:
+							return mc.createdDate
 							break
 						default:
 							return ""
@@ -234,6 +253,11 @@ class DataBindingView extends Composite {
 
 	}
 	
+	/* this is called whenever the current entity is changed 
+	 * in the list viewer, we rebind all the entity editing controls
+	 * this is so we can avoid setting the dirty flag when the entity is changed
+	 * as opposed to the values in the controls being changed manually
+	 */
 	private def addDataBindings() {
 		ctx.dispose()
 		IObservableList dabindings = ctx.getValidationStatusProviders()
@@ -245,12 +269,19 @@ class DataBindingView extends Composite {
 		//master detail bindings
 		//the detail field
 		IObservableValue target = WidgetProperties.text(SWT.Modify).observe(txtStringTest)
+		IObservableValue targetIntTest = WidgetProperties.spinnerSelection().observe(spinIntTest)
 		IObservableValue targetComboTest = ViewerProperties.singleSelection().observe(cboComboTest)
 		//the viewer
 		IViewerObservableValue selectedEntity = ViewerProperties.singleSelection().observe(listView)
 		//the property in the domain entity
 		IObservableValue detailValue = BeanProperties.value("stringTest", String.class).observeDetail(selectedEntity)
+		IObservableValue valueIntTest = BeanProperties.value("intTest", int.class).observeDetail(selectedEntity)
 		IObservableValue valueComboTest = BeanProperties.value("comboTest", String.class).observeDetail(selectedEntity)
+		
+		DateTimeSelectionProperty dateTimeSelectionProperty = new DateTimeSelectionProperty()
+		def targetDateCreated = dateTimeSelectionProperty.observe(dteCreatedDate)
+		def valueDateCreated = BeanProperties.value("createdDate", LocalDate.class).observeDetail(selectedEntity)
+	
 		
 		//converting from a combo lookup to a field type, say string
 		IConverter convertListItemDetail = IConverter.create(ListItemDetail.class, String.class, 
@@ -282,23 +313,12 @@ class DataBindingView extends Composite {
 		//Binding nameBinding = ctx.bindValue(nameTargetObservable, nameModelObservable, nameUpdateStrategy, null);
 		
 		def detailBinding = ctx.bindValue(target, detailValue, updateStrategy, null)
+		def intTestBinding = ctx.bindValue(targetIntTest, valueIntTest)
 		def comboTestBinding = ctx.bindValue(targetComboTest, valueComboTest, 
 			UpdateValueStrategy.create(convertListItemDetail), UpdateValueStrategy.create(convertToListItemDetail))
+		def dateCreatedBinding = ctx.bindValue(targetDateCreated, valueDateCreated)
 		
 
-
-		/***********************************************
-		there is a problem with dirty binding
-		using the change event on the listViewer to 
-		set a flag saying ignore any change bindings (ie a list selection
-		should not trigger a dirty flag)
-		we are using the binding listener to check for changes to fields
-		which should update the dirty flag
-		problem is a listviewer change, signals the field bindings change listener to fire
-		how do we tell it that a list change should be ignored for setting dirty flag
-		 ************************************************/
- 
-		
 		//dirty binding
 		IObservableList bindings = ctx.getValidationStatusProviders()
 		bindings.each { element ->
