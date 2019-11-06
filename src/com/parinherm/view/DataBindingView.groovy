@@ -80,6 +80,9 @@ class DataBindingView extends Composite {
 	Label lblCreatedTime
 	DateTime dteCreatedTime
 	
+	Label lblBoolTest
+	Button btnBoolTest
+	
 	/* view controls for selecting current entity */
 	TableViewer listView
 	Table listTable
@@ -136,11 +139,12 @@ class DataBindingView extends Composite {
 		TableColumnLayout tableLayout = new TableColumnLayout()
 		listComposite.setLayout(tableLayout)
 		
-		TableViewerColumn stringTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
-		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
-		TableViewerColumn comboTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+		TableViewerColumn stringTestColumn = TableViewerColumnHelper.getColumn("String Test", listView, tableLayout)
+		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Integer Test", listView, tableLayout)
+		TableViewerColumn comboTestColumn = TableViewerColumnHelper.getColumn("Combo Test", listView, tableLayout)
 		TableViewerColumn createdDateColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
 		TableViewerColumn createdTimeColumn = TableViewerColumnHelper.getColumn("Created Time", listView, tableLayout)
+		def boolTestColumn = TableViewerColumnHelper.getColumn("Bool Test", listView, tableLayout)
 
 		
 		listView.setContentProvider(contentProvider)
@@ -183,6 +187,8 @@ class DataBindingView extends Composite {
 		lblCreatedTime = new Label(editComposite, "Time Created")
 		dteCreatedTime = new DateTime(editComposite, SWT.DROP_DOWN | SWT.TIME)
 		
+		lblBoolTest = new Label(editComposite, "Bool Test")
+		btnBoolTest = new Button(editComposite, SWT.CHECK)
 		
 		/* error label */
 		lblError = new Label(editComposite, "Errors")
@@ -228,7 +234,9 @@ class DataBindingView extends Composite {
 		def comboTest = BeanProperties.value(DomainTest.class, "comboTest").observeDetail(knownElements)
 		def createdDate = BeanProperties.value(DomainTest.class, "createdDate").observeDetail(knownElements)
 		def createdTime = BeanProperties.value(DomainTest.class, "createdTime").observeDetail(knownElements)
-		IObservableMap[] labelMaps = [stringTest, intTest, comboTest, createdDate, createdTime] as IObservableMap[]
+		def boolTest = BeanProperties.value(DomainTest.class, "boolTest").observeDetail(knownElements)
+		
+		IObservableMap[] labelMaps = [stringTest, intTest, comboTest, createdDate, createdTime, boolTest] as IObservableMap[]
 		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
 				@Override
 				public String getColumnText(Object element, int columnIndex) {
@@ -249,6 +257,9 @@ class DataBindingView extends Composite {
 							break
 						case 4:
 							return mc.createdTime
+							break
+						case 5:
+							return mc.boolTest
 							break
 						default:
 							return ""
@@ -282,12 +293,14 @@ class DataBindingView extends Composite {
 		IObservableValue target = WidgetProperties.text(SWT.Modify).observe(txtStringTest)
 		IObservableValue targetIntTest = WidgetProperties.spinnerSelection().observe(spinIntTest)
 		IObservableValue targetComboTest = ViewerProperties.singleSelection().observe(cboComboTest)
+		def targetBoolTest = WidgetProperties.buttonSelection().observe(btnBoolTest)
 		//the viewer
 		IViewerObservableValue selectedEntity = ViewerProperties.singleSelection().observe(listView)
 		//the property in the domain entity
 		IObservableValue detailValue = BeanProperties.value("stringTest", String.class).observeDetail(selectedEntity)
 		IObservableValue valueIntTest = BeanProperties.value("intTest", int.class).observeDetail(selectedEntity)
 		IObservableValue valueComboTest = BeanProperties.value("comboTest", String.class).observeDetail(selectedEntity)
+		def valueBoolTest = BeanProperties.value("boolTest", boolean.class).observeDetail(selectedEntity)
 		
 		DateTimeSelectionProperty dateTimeSelectionProperty = new DateTimeSelectionProperty()
 		def targetDateCreated = dateTimeSelectionProperty.observe(dteCreatedDate)
@@ -332,8 +345,12 @@ class DataBindingView extends Composite {
 		def intTestBinding = ctx.bindValue(targetIntTest, valueIntTest)
 		def comboTestBinding = ctx.bindValue(targetComboTest, valueComboTest, 
 			UpdateValueStrategy.create(convertListItemDetail), UpdateValueStrategy.create(convertToListItemDetail))
+		
+		// this one screws up the dirty binding for some reason
 		def dateCreatedBinding = ctx.bindValue(targetDateCreated, valueDateCreated)
 		def timeCreatedBinding = ctx.bindValue(targetTimeCreated, valueTimeCreated)
+		
+		def boolTestBinding = ctx.bindValue(targetBoolTest, valueBoolTest)
 		
 
 		//dirty binding

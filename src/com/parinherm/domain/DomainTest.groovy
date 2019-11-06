@@ -18,6 +18,7 @@ class DomainTest {
 	@Bindable LocalDate createdDate
 	@Bindable LocalTime createdTime
 	@Bindable LocalDateTime createdDateTime
+	@Bindable boolean boolTest
 	
 }
 
