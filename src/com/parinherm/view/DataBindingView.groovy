@@ -2,7 +2,7 @@ package com.parinherm.view
 
 
 import java.time.LocalDate
-
+import java.time.LocalTime
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
@@ -77,6 +77,9 @@ class DataBindingView extends Composite {
 	Label lblCreatedDate
 	DateTime dteCreatedDate
 	
+	Label lblCreatedTime
+	DateTime dteCreatedTime
+	
 	/* view controls for selecting current entity */
 	TableViewer listView
 	Table listTable
@@ -137,6 +140,7 @@ class DataBindingView extends Composite {
 		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
 		TableViewerColumn comboTestColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
 		TableViewerColumn createdDateColumn = TableViewerColumnHelper.getColumn("Created Date", listView, tableLayout)
+		TableViewerColumn createdTimeColumn = TableViewerColumnHelper.getColumn("Created Time", listView, tableLayout)
 
 		
 		listView.setContentProvider(contentProvider)
@@ -175,6 +179,9 @@ class DataBindingView extends Composite {
 		
 		lblCreatedDate = new Label(editComposite, "Date Created")
 		dteCreatedDate = new DateTime(editComposite, SWT.DROP_DOWN | SWT.DATE)
+		
+		lblCreatedTime = new Label(editComposite, "Time Created")
+		dteCreatedTime = new DateTime(editComposite, SWT.DROP_DOWN | SWT.TIME)
 		
 		
 		/* error label */
@@ -216,11 +223,12 @@ class DataBindingView extends Composite {
 	
 	private def addListBindings() {
 		IObservableSet<DomainTest> knownElements = contentProvider.getKnownElements()
-		final IObservableMap stringTest = BeanProperties.value(DomainTest.class, "stringTest").observeDetail(knownElements)
-		final IObservableMap intTest = BeanProperties.value(DomainTest.class, "intTest").observeDetail(knownElements)
-		final IObservableMap comboTest = BeanProperties.value(DomainTest.class, "comboTest").observeDetail(knownElements)
+		def stringTest = BeanProperties.value(DomainTest.class, "stringTest").observeDetail(knownElements)
+		def intTest = BeanProperties.value(DomainTest.class, "intTest").observeDetail(knownElements)
+		def comboTest = BeanProperties.value(DomainTest.class, "comboTest").observeDetail(knownElements)
 		def createdDate = BeanProperties.value(DomainTest.class, "createdDate").observeDetail(knownElements)
-		IObservableMap[] labelMaps = [stringTest, intTest, comboTest, createdDate] as IObservableMap[]
+		def createdTime = BeanProperties.value(DomainTest.class, "createdTime").observeDetail(knownElements)
+		IObservableMap[] labelMaps = [stringTest, intTest, comboTest, createdDate, createdTime] as IObservableMap[]
 		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
 				@Override
 				public String getColumnText(Object element, int columnIndex) {
@@ -238,6 +246,9 @@ class DataBindingView extends Composite {
 							break
 						case 3:
 							return mc.createdDate
+							break
+						case 4:
+							return mc.createdTime
 							break
 						default:
 							return ""
@@ -281,6 +292,12 @@ class DataBindingView extends Composite {
 		DateTimeSelectionProperty dateTimeSelectionProperty = new DateTimeSelectionProperty()
 		def targetDateCreated = dateTimeSelectionProperty.observe(dteCreatedDate)
 		def valueDateCreated = BeanProperties.value("createdDate", LocalDate.class).observeDetail(selectedEntity)
+		
+		DateTimeSelectionProperty timeProperty = new DateTimeSelectionProperty()
+		def targetTimeCreated = timeProperty.observe(dteCreatedTime)
+		def valueTimeCreated = BeanProperties.value("createdTime", LocalTime.class).observeDetail(selectedEntity)
+		
+		
 	
 		
 		//converting from a combo lookup to a field type, say string
@@ -310,13 +327,13 @@ class DataBindingView extends Composite {
 		  };
 		UpdateValueStrategy updateStrategy = new UpdateValueStrategy()
 		updateStrategy.setAfterConvertValidator(validator)
-		//Binding nameBinding = ctx.bindValue(nameTargetObservable, nameModelObservable, nameUpdateStrategy, null);
 		
 		def detailBinding = ctx.bindValue(target, detailValue, updateStrategy, null)
 		def intTestBinding = ctx.bindValue(targetIntTest, valueIntTest)
 		def comboTestBinding = ctx.bindValue(targetComboTest, valueComboTest, 
 			UpdateValueStrategy.create(convertListItemDetail), UpdateValueStrategy.create(convertToListItemDetail))
 		def dateCreatedBinding = ctx.bindValue(targetDateCreated, valueDateCreated)
+		def timeCreatedBinding = ctx.bindValue(targetTimeCreated, valueTimeCreated)
 		
 
 		//dirty binding
