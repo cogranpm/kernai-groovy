@@ -8,7 +8,7 @@ class DomainTest {
 
 	@Bindable String stringTest
 	@Bindable int intTest	
-	
+	@Bindable String comboTest
 	
 }
 
