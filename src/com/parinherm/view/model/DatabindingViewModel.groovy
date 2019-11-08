@@ -1,4 +1,4 @@
-package com.parinherm.view
+package com.parinherm.view.model
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -9,7 +9,10 @@ import com.parinherm.domain.DomainTest
 import com.parinherm.main.AppCache
 
 import groovy.beans.Bindable
+import groovy.transform.CompileStatic
 
+
+//compile static not compatible with @Singleton
 //@CompileStatic
 class DatabindingViewModel {
 	

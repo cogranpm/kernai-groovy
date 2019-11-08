@@ -57,6 +57,7 @@ import com.parinherm.domain.ListItemDetail
 import com.parinherm.ui.controls.DateTimeSelectionProperty
 import com.parinherm.ui.controls.Label
 import com.parinherm.ui.controls.TableViewerColumnHelper
+import com.parinherm.view.model.DatabindingViewModel
 
 import groovy.transform.CompileStatic
 
