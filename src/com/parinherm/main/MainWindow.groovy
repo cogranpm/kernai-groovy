@@ -7,7 +7,6 @@ import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
-import org.eclipse.swt.graphics.Device
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.graphics.Rectangle
@@ -15,6 +14,7 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 
 import com.parinherm.view.DataBindingView
+import com.parinherm.view.ScriptView
 
 import groovy.transform.CompileStatic
 
@@ -26,6 +26,7 @@ class MainWindow extends ApplicationWindow {
 	private final static String IMAGE_ACTIVITY_LARGE = "activitylarge"
 	private final static String IMAGES_PATH = "/images/"
 	
+	Composite container
 	
 	MainWindow(Shell parentShell) {
 		super(parentShell)
@@ -54,7 +55,7 @@ class MainWindow extends ApplicationWindow {
 	
 	protected Control createContents(Composite parent) {
 //		parent.setLayout(new FillLayout())
-		def container = new Composite(parent, SWT.NONE)
+		container = new Composite(parent, SWT.NONE)
 		container.setLayout(new FillLayout())
 		//def dbTest = new DataBindingTest(container)
 		setStatus("what in the hell?")
@@ -72,6 +73,8 @@ class MainWindow extends ApplicationWindow {
 		
 		try {
 			
+			def win = this
+			
 			IAction actionOpenFile = new Action("Open") {
 				@Override
 				public void run() {
@@ -88,6 +91,28 @@ class MainWindow extends ApplicationWindow {
 					}
 				}
 			}
+			
+			IAction actionViewConsole  = new Action("Console") {
+				@Override
+				public void run() {
+					for(Control control : win.container.getChildren())
+					{
+						control.dispose();
+					}
+				
+					
+					ScriptView view = new ScriptView(container)
+				}
+			}
+			
+			
+			
+			IAction actionQuit = new Action("&Quit\tCtrl+Q") {
+				@Override
+				public void run() {
+					win.close()
+				}
+			}
 				
 			actionOpenFile.description = "blah"
 			actionOpenFile.actionDefinitionId = "crap"
@@ -97,8 +122,14 @@ class MainWindow extends ApplicationWindow {
 			MenuManager fileMenu = new MenuManager("&File")
 			fileMenu.add(new Separator())
 			fileMenu.add(actionOpenFile)
+			fileMenu.add(actionQuit)
 			mm.add(fileMenu)
-			
+
+			MenuManager viewMenu = new MenuManager("&View")
+			viewMenu.add(actionViewConsole)
+			mm.add(viewMenu)
+
+						
 			MenuManager helpMenu = new MenuManager("&Help")
 			//helpMenu.add(ApplicationData.instance().getAction(ApplicationData.ABOUT_ACTION_KEY));
 			//mm.add(helpMenu);
@@ -146,9 +177,15 @@ class MainWindow extends ApplicationWindow {
 		return new Point((rect.width / 2) as int, (rect.height / 2) as int)
 	}
 	
+	
+	
+	
+	
+	
+	@Override
 	public boolean close() {
-		//close an resources here
-		return super.close()
+		// TODO Auto-generated method stub
+		return super.close();
 	}
 	
 	
@@ -162,7 +199,7 @@ class MainWindow extends ApplicationWindow {
 					def mainwin = new MainWindow(null)
 					mainwin.setBlockOnOpen(true)
 					mainwin.open()
-					//Display.getCurrent().dispose()
+					display.dispose()
 				} catch (Exception e) {
 					println e.message
 					println e.stackTrace
