@@ -147,11 +147,7 @@ class MainWindow extends ApplicationWindow {
 
 			MenuManager viewMenu = new MenuManager("&View")
 			viewMenu.add(actionViewConsole)
-<<<<<<< HEAD
 			viewMenu.add(snippets)
-=======
-			viewMenu.add(xmasTree)
->>>>>>> branch 'master' of https://github.com/cogranpm/kernai-groovy.git
 			mm.add(viewMenu)
 
 						
