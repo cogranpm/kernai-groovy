@@ -11,6 +11,7 @@ import org.eclipse.draw2d.MouseEvent
 import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.MouseMotionListener
 import org.eclipse.draw2d.ToolbarLayout
+import org.eclipse.draw2d.XYLayout
 
 import com.parinherm.main.AppCache
 
@@ -18,8 +19,16 @@ class ChristmasTreeFigure extends Figure {
 	
 	private AppCache cache = AppCache.instance
 	private Label label
+	//private XYLayout xyLayout = new XYLayout()
 	
 	ChristmasTreeFigure() {
+		
+		
+		//contents.setLayoutManager(xyLayout)
+		//put figure as position 20, 20 with it's preferred size
+		//xyLayout.setConstraint(xmas, new Rectangle(20, 20, -1, -1))
+		
+		
 		setLayoutManager(new ToolbarLayout(true))
 		setBorder(new LineBorder(ColorConstants.black))
 		setBackgroundColor(ColorConstants.yellow)
@@ -85,5 +94,6 @@ class ChristmasTreeFigure extends Figure {
 		
 		add(button)
 		add(label)
+		add(new TrunkFigure())
 	}
 }
