@@ -20,7 +20,7 @@ class ChristmasTreeFigure extends Figure {
 	private Label label
 	
 	ChristmasTreeFigure() {
-		setLayoutManager(new ToolbarLayout())
+		setLayoutManager(new ToolbarLayout(true))
 		setBorder(new LineBorder(ColorConstants.black))
 		setBackgroundColor(ColorConstants.yellow)
 		setOpaque(true)

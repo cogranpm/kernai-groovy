@@ -111,7 +111,7 @@ class MainWindow extends ApplicationWindow {
 				}
 			}
 			
-			IAction xmasTree = new Action("XMas Tree") {
+			IAction xmasTree = new Action("&XMas Tree") {
 				public void run () {
 					for (Control control : win.container.getChildren()) {
 						control.dispose()
@@ -120,6 +120,7 @@ class MainWindow extends ApplicationWindow {
 					container.layout()
 				}
 			}
+			xmasTree.setAccelerator(SWT.MOD1 | (('X' as char) as int))
 			
 			
 			
@@ -148,6 +149,7 @@ class MainWindow extends ApplicationWindow {
 			MenuManager viewMenu = new MenuManager("&View")
 			viewMenu.add(actionViewConsole)
 			viewMenu.add(snippets)
+			viewMenu.add(xmasTree)
 			mm.add(viewMenu)
 
 						
