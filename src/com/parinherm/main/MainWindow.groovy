@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 
 import com.parinherm.view.DataBindingView
+import com.parinherm.view.JSyntaxPaneView
 import com.parinherm.view.ScriptView
 
 import groovy.transform.CompileStatic
@@ -101,18 +102,37 @@ class MainWindow extends ApplicationWindow {
 					}
 				
 					
+					JSyntaxPaneView view = new JSyntaxPaneView(container)
+					win.container.layout
+				}
+			}
+			
+			IAction snippets  = new Action("Snippets") {
+				@Override
+				public void run() {
+					for(Control control : win.container.getChildren())
+					{
+						control.dispose();
+					}
+				
+					
 					ScriptView view = new ScriptView(container)
+					win.container.layout
 				}
 			}
 			
 			
 			
-			IAction actionQuit = new Action("&Quit\tCtrl+Q") {
+			IAction actionQuit = new Action("&Quit") {
 				@Override
 				public void run() {
 					win.close()
 				}
 			}
+			
+			//this is how to do accelerator in groovy 
+			char q = 'Q'
+			actionQuit.setAccelerator(SWT.MOD1 | q as int)
 				
 			actionOpenFile.description = "blah"
 			actionOpenFile.actionDefinitionId = "crap"
@@ -127,6 +147,7 @@ class MainWindow extends ApplicationWindow {
 
 			MenuManager viewMenu = new MenuManager("&View")
 			viewMenu.add(actionViewConsole)
+			viewMenu.add(snippets)
 			mm.add(viewMenu)
 
 						
