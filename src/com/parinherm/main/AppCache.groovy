@@ -12,6 +12,7 @@ class AppCache {
 	ImageRegistry imageRegistry = new ImageRegistry()
 	public final static String IMAGE_ACTVITY_SMALL = "activitysmall"
 	public final static String IMAGE_ACTIVITY_LARGE = "activitylarge"
+	public final static String IMAGE_GOUP = "goup"
 	public final static String IMAGES_PATH = "/images/"
 	
 	int getRandomInt() {
@@ -23,8 +24,9 @@ class AppCache {
 	}
 	
 	private def setupImages() {
-		imageRegistry.put(IMAGE_ACTVITY_SMALL, ImageDescriptor.createFromFile(AppCache.class, String.format("%s%s", IMAGES_PATH, "Activity_16xSM.png")));
-		imageRegistry.put(IMAGE_ACTIVITY_LARGE, ImageDescriptor.createFromFile(AppCache.class, String.format("%s%s", IMAGES_PATH, "Activity_32x.png")));
+		imageRegistry.put(IMAGE_ACTVITY_SMALL, ImageDescriptor.createFromFile(AppCache.class, String.format("%s%s", IMAGES_PATH, "Activity_16xSM.png")))
+		imageRegistry.put(IMAGE_ACTIVITY_LARGE, ImageDescriptor.createFromFile(AppCache.class, String.format("%s%s", IMAGES_PATH, "Activity_32x.png")))
+		imageRegistry.put(IMAGE_GOUP, ImageDescriptor.createFromFile(AppCache.class, "${IMAGES_PATH}go-up.png"))
 	}
 	
 	Image getImage(String name) {
