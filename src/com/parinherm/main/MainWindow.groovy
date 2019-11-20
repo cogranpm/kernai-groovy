@@ -15,24 +15,20 @@ import org.eclipse.swt.widgets.*
 
 import com.parinherm.view.DataBindingView
 import com.parinherm.view.ScriptView
+import com.parinherm.view.graphics.ChristmasTreeView
 
 import groovy.transform.CompileStatic
 
-@CompileStatic
+
 class MainWindow extends ApplicationWindow {
 	
-	private ImageRegistry imageRegistry
-	private final static String IMAGE_ACTVITY_SMALL = "activitysmall"
-	private final static String IMAGE_ACTIVITY_LARGE = "activitylarge"
-	private final static String IMAGES_PATH = "/images/"
-	
 	Composite container
+	private AppCache cache = AppCache.instance
 	
 	MainWindow(Shell parentShell) {
 		super(parentShell)
 		try {
-		
-			this.setupImages()
+			cache.setupImages()
 			this.addMenuBar()
 			this.addToolBar(SWT.FLAT | SWT.WRAP)
 			this.addStatusLine()
@@ -43,12 +39,6 @@ class MainWindow extends ApplicationWindow {
 		}
 	}
 	
-	private def setupImages() {
-		imageRegistry = new ImageRegistry()
-		this.imageRegistry.put(IMAGE_ACTVITY_SMALL, ImageDescriptor.createFromFile(MainWindow.class, String.format("%s%s", IMAGES_PATH, "Activity_16xSM.png")));
-		this.imageRegistry.put(IMAGE_ACTIVITY_LARGE, ImageDescriptor.createFromFile(MainWindow.class, String.format("%s%s", IMAGES_PATH, "Activity_32x.png")));
-		
-	}
 	
 	
 	/* overrides */
@@ -60,8 +50,8 @@ class MainWindow extends ApplicationWindow {
 		//def dbTest = new DataBindingTest(container)
 		setStatus("what in the hell?")
 		getShell().text = "Kernai"
-		Image activitySmall = imageRegistry.get(IMAGE_ACTVITY_SMALL)
-		Image activityLarge = imageRegistry.get(IMAGE_ACTIVITY_LARGE)
+		Image activitySmall = cache.getImage(cache.IMAGE_ACTVITY_SMALL)
+		Image activityLarge = cache.getImage(cache.IMAGE_ACTIVITY_LARGE)
 		def images = [activitySmall, activityLarge] as Image[]
 		getShell().setImages(images)
 		
@@ -105,6 +95,16 @@ class MainWindow extends ApplicationWindow {
 				}
 			}
 			
+			IAction xmasTree = new Action("XMas Tree") {
+				public void run () {
+					for (Control control : win.container.getChildren()) {
+						control.dispose()
+					}
+					ChristmasTreeView view = new ChristmasTreeView(container)
+					container.layout()
+				}
+			}
+			
 			
 			
 			IAction actionQuit = new Action("&Quit\tCtrl+Q") {
@@ -127,6 +127,7 @@ class MainWindow extends ApplicationWindow {
 
 			MenuManager viewMenu = new MenuManager("&View")
 			viewMenu.add(actionViewConsole)
+			viewMenu.add(xmasTree)
 			mm.add(viewMenu)
 
 						
@@ -174,7 +175,7 @@ class MainWindow extends ApplicationWindow {
 	protected Point getInitialSize() {
 		def display = Display.getDefault()
 		Rectangle rect = display.clientArea
-		return new Point((rect.width / 2) as int, (rect.height / 2) as int)
+		new Point((rect.width / 2) as int, (rect.height / 2) as int)
 	}
 	
 	
