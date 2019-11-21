@@ -17,7 +17,6 @@ class ChristmasTreeView {
 	
 	private AppCache cache = AppCache.getInstance()
 	private Figure contents = new Figure() 
-	
 	private ChristmasTreeFigure xmas = new ChristmasTreeFigure()
 	
 	ChristmasTreeView(Composite parent){
@@ -39,6 +38,5 @@ class ChristmasTreeView {
 		
 		contents.add(xmas)
 		lws.setContents(contents)
-
 	}
 }

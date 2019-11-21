@@ -2,6 +2,7 @@ package com.parinherm.view.graphics
 
 
 
+
 import org.eclipse.draw2d.Button
 import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Figure
@@ -10,8 +11,8 @@ import org.eclipse.draw2d.LineBorder
 import org.eclipse.draw2d.MouseEvent
 import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.MouseMotionListener
-import org.eclipse.draw2d.ToolbarLayout
 import org.eclipse.draw2d.XYLayout
+import org.eclipse.draw2d.geometry.Rectangle
 
 import com.parinherm.main.AppCache
 
@@ -19,17 +20,25 @@ class ChristmasTreeFigure extends Figure {
 	
 	private AppCache cache = AppCache.instance
 	private Label label
-	//private XYLayout xyLayout = new XYLayout()
+	private XYLayout xyLayout = new XYLayout()
+	private TrunkFigure trunk = new TrunkFigure()
 	
 	ChristmasTreeFigure() {
 		
 		
-		//contents.setLayoutManager(xyLayout)
+		setLayoutManager(xyLayout)
 		//put figure as position 20, 20 with it's preferred size
-		//xyLayout.setConstraint(xmas, new Rectangle(20, 20, -1, -1))
 		
 		
-		setLayoutManager(new ToolbarLayout(true))
+		
+		//setLayoutManager(new ToolbarLayout(true))
+		//setLayoutManager(new FreeformLayout())
+		//def gridLayout = new GridLayout(1, true)
+		//gridLayout.numColumns = 1
+		
+		//setLayoutManager(gridLayout)
+		
+		
 		setBorder(new LineBorder(ColorConstants.black))
 		setBackgroundColor(ColorConstants.yellow)
 		setOpaque(true)
@@ -92,8 +101,11 @@ class ChristmasTreeFigure extends Figure {
 			
 		})
 		
-		add(button)
-		add(label)
-		add(new TrunkFigure())
+		//add(button)
+		//add(label)
+		
+		//trunk.setSize(getSize().width, getSize().height)
+		xyLayout.setConstraint(trunk, new Rectangle(20, 20, 800, 800))
+		add(trunk)
 	}
 }
