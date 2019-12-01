@@ -38,19 +38,24 @@ class TrunkFigure  extends Figure{
 	protected void paintFigure(Graphics g) {
 		super.paintFigure(g);
 		//Rectangle r = getClientArea()
-		Rectangle r = getBounds()
+		Rectangle r = getClientArea()
+		println r
 		
 		//draw a line halfway across top to bottom
 		Integer trunkWidth = 20
-		Integer middle = getSize().width.intdiv(2)
+		Integer middle = r.width.intdiv(2)
 		Integer trunkLeft = middle - trunkWidth
-		Integer trunkRight = middle + trunkWidth
+		Integer trunkRight = trunkLeft + 10
+		//Integer trunkRight = middle + trunkWidth
+		
+		
+		
 		//g.drawLine(trunkLeft , r.y,  trunkLeft, r.y + r.height)
 		//g.drawLine(trunkRight, r.y,  trunkRight, r.y + r.height)
 
 		g.drawRectangle(new Rectangle(
-			trunkLeft, getLocation().y, 
-			trunkRight, getSize().height - 1
+			trunkLeft, 0, 
+			trunkWidth, r.height - 1
 			))
 		
 		/*

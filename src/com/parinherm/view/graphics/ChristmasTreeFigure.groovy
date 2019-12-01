@@ -6,6 +6,7 @@ package com.parinherm.view.graphics
 import org.eclipse.draw2d.Button
 import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Figure
+import org.eclipse.draw2d.GridLayout
 import org.eclipse.draw2d.Label
 import org.eclipse.draw2d.LineBorder
 import org.eclipse.draw2d.MouseEvent
@@ -13,6 +14,7 @@ import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.MouseMotionListener
 import org.eclipse.draw2d.XYLayout
 import org.eclipse.draw2d.geometry.Rectangle
+import org.eclipse.swt.widgets.Display
 
 import com.parinherm.main.AppCache
 
@@ -26,17 +28,17 @@ class ChristmasTreeFigure extends Figure {
 	ChristmasTreeFigure() {
 		
 		
-		setLayoutManager(xyLayout)
+		//setLayoutManager(xyLayout)
 		//put figure as position 20, 20 with it's preferred size
 		
 		
 		
 		//setLayoutManager(new ToolbarLayout(true))
 		//setLayoutManager(new FreeformLayout())
-		//def gridLayout = new GridLayout(1, true)
+
+		def gridLayout = new GridLayout(1, true)
 		//gridLayout.numColumns = 1
-		
-		//setLayoutManager(gridLayout)
+		setLayoutManager(gridLayout)
 		
 		
 		setBorder(new LineBorder(ColorConstants.black))
@@ -105,7 +107,10 @@ class ChristmasTreeFigure extends Figure {
 		//add(label)
 		
 		//trunk.setSize(getSize().width, getSize().height)
-		xyLayout.setConstraint(trunk, new Rectangle(20, 20, 800, 800))
+		Display display = Display.getCurrent()
+		def displayRect = display.getPrimaryMonitor().getClientArea()
+		
+		//xyLayout.setConstraint(trunk, new Rectangle(0, 0, displayRect.width, displayRect.height))
 		add(trunk)
 	}
 }
