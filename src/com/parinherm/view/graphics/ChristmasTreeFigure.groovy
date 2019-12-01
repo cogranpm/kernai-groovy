@@ -6,6 +6,7 @@ package com.parinherm.view.graphics
 import org.eclipse.draw2d.Button
 import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Figure
+import org.eclipse.draw2d.GridData
 import org.eclipse.draw2d.GridLayout
 import org.eclipse.draw2d.Label
 import org.eclipse.draw2d.LineBorder
@@ -14,6 +15,7 @@ import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.MouseMotionListener
 import org.eclipse.draw2d.XYLayout
 import org.eclipse.draw2d.geometry.Rectangle
+import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Display
 
 import com.parinherm.main.AppCache
@@ -111,6 +113,12 @@ class ChristmasTreeFigure extends Figure {
 		def displayRect = display.getPrimaryMonitor().getClientArea()
 		
 		//xyLayout.setConstraint(trunk, new Rectangle(0, 0, displayRect.width, displayRect.height))
+
+		GridData gridData = new GridData()
+		gridData.grabExcessHorizontalSpace = true
+		gridData.grabExcessVerticalSpace = true
+		gridData.verticalAlignment = SWT.FILL
+		layoutManager.setConstraint(trunk, gridData)
 		add(trunk)
 	}
 }

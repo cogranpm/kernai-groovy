@@ -31,7 +31,7 @@ class TrunkFigure  extends Figure{
 		//setLayoutManager(new FreeformLayout());
 		//setLayoutManager(new GridLayout())
 		//setSize(150, 40)
-		//repaint()
+		repaint()
 	}
 	
 	@Override
@@ -54,8 +54,8 @@ class TrunkFigure  extends Figure{
 		//g.drawLine(trunkRight, r.y,  trunkRight, r.y + r.height)
 
 		g.drawRectangle(new Rectangle(
-			trunkLeft, 0, 
-			trunkWidth, r.height - 1
+			trunkLeft, 50,
+			trunkWidth, r.height - 50
 			))
 		
 		/*

@@ -5,6 +5,8 @@ import org.eclipse.draw2d.FlowLayout
 import org.eclipse.draw2d.FreeformLayer
 import org.eclipse.draw2d.FreeformLayout
 import org.eclipse.draw2d.FreeformViewport
+import org.eclipse.draw2d.GridData
+import org.eclipse.draw2d.GridLayout
 import org.eclipse.draw2d.LightweightSystem
 import org.eclipse.draw2d.ScrollPane
 import org.eclipse.swt.SWT
@@ -23,7 +25,8 @@ class ChristmasTreeView {
 
 		def canvas = new Canvas(parent, SWT.NONE)
 		def lws = new LightweightSystem(canvas)
-		contents.setLayoutManager(new FlowLayout())
+		//contents.setLayoutManager(new FlowLayout())
+		contents.setLayoutManager(new GridLayout(1, true))
 		contents.removeAll()
 	
 		/*//scrollpane?
@@ -35,7 +38,9 @@ class ChristmasTreeView {
 		scrollPane.setContents(pane)
 		contents.add(scrollPane)
 		*/
-		
+
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true)
+		contents.layoutManager.setConstraint(xmas, gd)
 		contents.add(xmas)
 		lws.setContents(contents)
 	}
