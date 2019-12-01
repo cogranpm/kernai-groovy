@@ -6,16 +6,18 @@ import org.eclipse.draw2d.Figure
 import org.eclipse.draw2d.FlowLayout
 import org.eclipse.draw2d.FreeformLayout
 import org.eclipse.draw2d.Graphics
+import org.eclipse.draw2d.GridData
 import org.eclipse.draw2d.GridLayout
 import org.eclipse.draw2d.Label
 import org.eclipse.draw2d.PositionConstants
 import org.eclipse.draw2d.geometry.*
+import org.eclipse.swt.SWT
 
 
 class TrunkFigure  extends Figure{
 	
-	//private static final int FOLDED_CORNER_LENGTH = 12
-	//private Label label
+	private static final int FOLDED_CORNER_LENGTH = 12
+	private Label label
 	
 	TrunkFigure() {
 		super()
@@ -23,14 +25,21 @@ class TrunkFigure  extends Figure{
 		
 		
 		//example draws box around a label
-//		label = new Label();
-//		label.setTextAlignment(PositionConstants.LEFT);
-//		label.setText("I'm dyin ova here")
-		//add(label);
+		label = new Label();
+		label.setTextAlignment(PositionConstants.LEFT);
+		label.setText("I'm dyin ova here")
+
 		//setLayoutManager(new FlowLayout())
 		//setLayoutManager(new FreeformLayout());
-		//setLayoutManager(new GridLayout())
-		//setSize(150, 40)
+		setLayoutManager(new GridLayout(1, true))
+		GridData gd = new GridData()
+		gd.verticalAlignment = SWT.FILL
+		gd.horizontalAlignment = SWT.FILL
+		gd.grabExcessVerticalSpace = true
+		gd.grabExcessHorizontalSpace = true
+		layoutManager.setConstraint(label, gd)
+	//	add(label)
+		setSize(6000, 5000)
 		repaint()
 	}
 	
@@ -38,7 +47,7 @@ class TrunkFigure  extends Figure{
 	protected void paintFigure(Graphics g) {
 		super.paintFigure(g);
 		//Rectangle r = getClientArea()
-		Rectangle r = getClientArea()
+		Rectangle r = getBounds()
 		println r
 		
 		//draw a line halfway across top to bottom
@@ -53,11 +62,10 @@ class TrunkFigure  extends Figure{
 		//g.drawLine(trunkLeft , r.y,  trunkLeft, r.y + r.height)
 		//g.drawLine(trunkRight, r.y,  trunkRight, r.y + r.height)
 
-		g.drawRectangle(new Rectangle(
-			trunkLeft, 50,
-			trunkWidth, r.height - 50
-			))
-		
+		g.drawText("go orf", 10, 10)
+
+		//g.drawRectangle( new Rectangle(x: 10, y: 10, width: 500, height: 800))
+
 		/*
 		// draw the rectangle without the top left corner
 		g.drawLine(r.x, r.y,
