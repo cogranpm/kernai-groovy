@@ -1,19 +1,16 @@
 package com.parinherm.view.graphics
 
 import org.eclipse.draw2d.BorderLayout
+import org.eclipse.draw2d.CompoundBorder
 import org.eclipse.draw2d.Figure
-import org.eclipse.draw2d.FigureCanvas
-import org.eclipse.draw2d.FlowLayout
-import org.eclipse.draw2d.FreeformLayer
-import org.eclipse.draw2d.FreeformLayout
-import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.GridData
 import org.eclipse.draw2d.GridLayout
+import org.eclipse.draw2d.GroupBoxBorder
+import org.eclipse.draw2d.LabeledContainer
 import org.eclipse.draw2d.LightweightSystem
-import org.eclipse.draw2d.Polyline
 import org.eclipse.draw2d.ScrollPane
-import org.eclipse.draw2d.ToolbarLayout
-import org.eclipse.draw2d.geometry.Point
+import org.eclipse.draw2d.StackLayout
+import org.eclipse.draw2d.geometry.Rectangle
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Canvas
 import org.eclipse.swt.widgets.Composite
@@ -38,36 +35,30 @@ class ChristmasTreeView {
 		//contents.setLayoutManager(new FlowLayout())
 		contents.setLayoutManager(new GridLayout(1, true))
 		contents.removeAll()
+		
+		ScrollPane scrollpane = new ScrollPane()
+		scrollpane.setBorder(new GroupBoxBorder("scrollpane"))
+		scrollpane.getViewport().setContentsTracksWidth(true)
 
 		final BasicFigure figure = new BasicFigure()
+		figure.setPreferredSize(100, 100)
 		figure.setLayoutManager(new BorderLayout())
 
+		scrollpane.setContents(figure)
+		
+		Figure mainPanel = new Figure()
+		LabeledContainer container = new LabeledContainer(new CompoundBorder())
+		container.setLayoutManager(new StackLayout())
+		container.setOpaque(true)
+		container.setRequestFocusEnabled(true)
+		//container.setLabel("Testing")
+		container.add(scrollpane)
+		container.setBounds(new Rectangle(1*20, 1*20, 800,800))
+		mainPanel.add(container)
+		lws.setContents(mainPanel)
+		
+		//lws.setContents(figure)
 
-		Polyline polyline = new Polyline();
-		float w = 70;
-		float k = 50;
-		polyline.addPoint(new Point(0 + k, 0 + k));
-		polyline.addPoint(new Point(w + k, 0 + k));
-		polyline.addPoint(new Point(w + k, w + k));
-		polyline.addPoint(new Point(0 + k, w + k));
-		polyline.setLineWidth(3);
-		//polyline.setBackgroundColor(ColorConstants.red);
-		//polyline.setClosed(true);
-
-		Point c = polyline.getBounds().getCenter();
-		//polyline.setRotation(c.x(), c.y(), 45);
-		//figure.add(polyline, BorderLayout.CENTER);
-		lws.setContents(figure)
-	
-		/*//scrollpane?
-		def scrollPane = new ScrollPane()
-		scrollPane.setViewport(new FreeformViewport())
-		def pane = new FreeformLayer();
-		pane.setLayoutManager(new FreeformLayout());
-		pane.add(xmas)
-		scrollPane.setContents(pane)
-		contents.add(scrollPane)
-		*/
 
 
 		/*
