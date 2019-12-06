@@ -49,14 +49,14 @@ class ChristmasTreeView {
 		XYLayout layout = new XYLayout()
 		root.setLayoutManager(layout)
 		
-		def andy = createPersonFigure("Andy")
+		def andy = new PersonFigure("Andy", 1922, 2002, "Andy was a \ngood man")
 		root.add(andy, new Rectangle(new PrecisionPoint(10.0d, 10.0d), andy.getPreferredSize()))
-		def betty = createPersonFigure("Betty")
+		def betty = new PersonFigure("Betty",  1924, 2006, "Betty was a \ngood womman")
 		root.add(betty, new Rectangle(new PrecisionPoint(230.0d, 10.0d), betty.getPreferredSize()))
-		def carl = createPersonFigure("Carl")
+		def carl = new PersonFigure("Carl", 1947, -1, "Carl is a \ndoofus man")
 		root.add(carl, new Rectangle(new PrecisionPoint(120.0d, 120.0d), betty.getPreferredSize()))
 		
-		def marriage = createMarriageFigure()
+		def marriage = new MarriageFigure()
 		root.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
 		
 		root.add(connect(andy, marriage))
@@ -70,37 +70,8 @@ class ChristmasTreeView {
 		canvas
 	}
 	
-	private IFigure createPersonFigure(String name) {
-		def rectangleFigure = new RectangleFigure()
-		rectangleFigure.setBackgroundColor(ColorConstants.lightGray)
-		rectangleFigure.setLayoutManager(new ToolbarLayout())
-		rectangleFigure.setPreferredSize(100, 100)
-		rectangleFigure.add(new Label(name))
-		
-		//support for moving figures around
-		new FigureMover(rectangleFigure)
-		
-		rectangleFigure
-			
-	}
-	
-	private IFigure createMarriageFigure() {
-		Rectangle r = new Rectangle(0, 0, 50, 50)
-		PolygonShape ps = new PolygonShape()
-		ps.setStart(r.getTop())
-		ps.addPoint(r.getTop())
-		ps.addPoint(r.getLeft())
-		ps.addPoint(r.getBottom())
-		ps.addPoint(r.getRight())
-		ps.addPoint(r.getTop())
-		ps.setEnd(r.getTop())
-		ps.setFill(true)
-		ps.setBackgroundColor(ColorConstants.lightGray)
-		ps.setPreferredSize(r.getSize())
-		
-		new FigureMover(ps)
-		ps
-	}
+
+
 	
 	
 	private Connection connect(IFigure figure1, IFigure figure2) {
