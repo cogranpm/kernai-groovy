@@ -1,12 +1,15 @@
 package com.parinherm.view.graphics
 
 
+import org.eclipse.draw2d.ChopboxAnchor
 import org.eclipse.draw2d.ColorConstants
+import org.eclipse.draw2d.Connection
 import org.eclipse.draw2d.Figure
 import org.eclipse.draw2d.IFigure
 import org.eclipse.draw2d.Label
 import org.eclipse.draw2d.LightweightSystem
 import org.eclipse.draw2d.PolygonShape
+import org.eclipse.draw2d.PolylineConnection
 import org.eclipse.draw2d.RectangleFigure
 import org.eclipse.draw2d.ToolbarLayout
 import org.eclipse.draw2d.XYLayout
@@ -56,6 +59,10 @@ class ChristmasTreeView {
 		def marriage = createMarriageFigure()
 		root.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
 		
+		root.add(connect(andy, marriage))
+		root.add(connect(betty, marriage))
+		root.add(connect(carl, marriage))
+		
 		Canvas canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED)
 		canvas.setBackground(ColorConstants.white)
 		LightweightSystem lws = new LightweightSystem(canvas)
@@ -69,6 +76,10 @@ class ChristmasTreeView {
 		rectangleFigure.setLayoutManager(new ToolbarLayout())
 		rectangleFigure.setPreferredSize(100, 100)
 		rectangleFigure.add(new Label(name))
+		
+		//support for moving figures around
+		new FigureMover(rectangleFigure)
+		
 		rectangleFigure
 			
 	}
@@ -86,9 +97,18 @@ class ChristmasTreeView {
 		ps.setFill(true)
 		ps.setBackgroundColor(ColorConstants.lightGray)
 		ps.setPreferredSize(r.getSize())
+		
+		new FigureMover(ps)
 		ps
 	}
 	
+	
+	private Connection connect(IFigure figure1, IFigure figure2) {
+		def connection = new PolylineConnection()
+		connection.setSourceAnchor(new ChopboxAnchor(figure1))
+		connection.setTargetAnchor(new ChopboxAnchor(figure2))
+		connection
+	}
 	
 	/* old stuff 
 	 * 		canvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true))
