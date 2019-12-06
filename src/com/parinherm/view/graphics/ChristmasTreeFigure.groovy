@@ -14,15 +14,15 @@ import org.eclipse.draw2d.MouseEvent
 import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.MouseMotionListener
 import org.eclipse.draw2d.XYLayout
-import org.eclipse.draw2d.geometry.Rectangle
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Display
 
 import com.parinherm.main.AppCache
+import com.parinherm.main.MainWindow
 
 class ChristmasTreeFigure extends Figure {
 	
-	private AppCache cache = AppCache.instance
+	private AppCache cache = MainWindow.cache
 	private Label label
 	private XYLayout xyLayout = new XYLayout()
 	private TrunkFigure trunk = new TrunkFigure()

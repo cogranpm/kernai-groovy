@@ -24,7 +24,7 @@ import groovy.transform.CompileStatic
 class MainWindow extends ApplicationWindow {
 	
 	Composite container
-	private AppCache cache = AppCache.instance
+	public static final AppCache cache = new AppCache()
 	
 	MainWindow(Shell parentShell) {
 		super(parentShell)

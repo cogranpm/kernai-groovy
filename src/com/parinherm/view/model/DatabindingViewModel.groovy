@@ -7,9 +7,9 @@ import java.time.LocalTime
 import com.parinherm.domain.DataTypesList
 import com.parinherm.domain.DomainTest
 import com.parinherm.main.AppCache
+import com.parinherm.main.MainWindow
 
 import groovy.beans.Bindable
-import groovy.transform.CompileStatic
 
 
 //compile static not compatible with @Singleton
@@ -26,8 +26,8 @@ class DatabindingViewModel {
 	@Bindable Boolean dirty = false
 	
 	private def buildNewDomainTest(String stringTest, int dateOffSet, boolean bool) {
-		int intTest = AppCache.instance.getRandomInt()
-		String comboTest = DataTypesList.items[AppCache.instance.getRandomInt(DataTypesList.items.size())].code
+		int intTest = MainWindow.cache.getRandomInt()
+		String comboTest = DataTypesList.items[MainWindow.cache.getRandomInt(DataTypesList.items.size())].code
 		LocalDate createdDate = LocalDateTime.now().toLocalDate().minusDays(dateOffSet)
 		LocalTime createdTime = LocalDateTime.now().minusDays(dateOffSet).toLocalTime()
 		LocalDateTime createdDateTime = LocalDateTime.now().minusDays(dateOffSet)
