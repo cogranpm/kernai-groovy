@@ -9,8 +9,8 @@ class NoteFigure extends Label {
 	
 	NoteFigure(String note){
 		super(note)
-		setOpaque(true)
-		setBackgroundColor(ColorConstants.white)
+		//setOpaque(true)
+		//setBackgroundColor(ColorConstants.white)
 		setBorder(new NoteBorder())
 	}
 	

@@ -6,12 +6,8 @@ import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Connection
 import org.eclipse.draw2d.Figure
 import org.eclipse.draw2d.IFigure
-import org.eclipse.draw2d.Label
 import org.eclipse.draw2d.LightweightSystem
-import org.eclipse.draw2d.PolygonShape
 import org.eclipse.draw2d.PolylineConnection
-import org.eclipse.draw2d.RectangleFigure
-import org.eclipse.draw2d.ToolbarLayout
 import org.eclipse.draw2d.XYLayout
 import org.eclipse.draw2d.geometry.PrecisionPoint
 import org.eclipse.draw2d.geometry.Rectangle
@@ -49,19 +45,30 @@ class ChristmasTreeView {
 		XYLayout layout = new XYLayout()
 		root.setLayoutManager(layout)
 		
-		def andy = new PersonFigure("Andy", 1922, 2002, "Andy was a \ngood man")
+		def andy = new PersonFigure("Andy", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1922, 2002)
+		andy.add(new NoteFigure("Andy was a \ngood man"))
 		root.add(andy, new Rectangle(new PrecisionPoint(10.0d, 10.0d), andy.getPreferredSize()))
-		def betty = new PersonFigure("Betty",  1924, 2006, "Betty was a \ngood womman")
+		def betty = new PersonFigure("Betty", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_INFO), 1924, 2006)
+		betty.add(new NoteFigure("Betty was a \ngood womman"))
 		root.add(betty, new Rectangle(new PrecisionPoint(230.0d, 10.0d), betty.getPreferredSize()))
-		def carl = new PersonFigure("Carl", 1947, -1, "Carl is a \ndoofus man")
-		root.add(carl, new Rectangle(new PrecisionPoint(120.0d, 120.0d), betty.getPreferredSize()))
+		def carl = new PersonFigure("Carl",MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1947, -1)
+		carl.add(new NoteFigure("Carl is a \ndoofus man"))
+		carl.add(new NoteFigure("He lives in\nBoston, MA."))
+		root.add(carl, new Rectangle(new PrecisionPoint(120.0d, 120.0d), carl.getPreferredSize()))
 		
-		def marriage = new MarriageFigure()
+		def marriage = new MarriageFigure(1942)
 		root.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
 		
 		root.add(connect(andy, marriage))
 		root.add(connect(betty, marriage))
 		root.add(connect(carl, marriage))
+		
+		//add a loose note
+		def note = new NoteFigure("Smith Family")
+		note.setFont(parent.getFont())
+		def noteSize = note.getPreferredSize()
+		
+		root.add(note, new Rectangle( new PrecisionPoint(10, 220 - noteSize.height), noteSize))
 		
 		Canvas canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED)
 		canvas.setBackground(ColorConstants.white)
