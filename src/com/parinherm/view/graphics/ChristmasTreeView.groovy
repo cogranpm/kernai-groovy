@@ -59,9 +59,10 @@ class ChristmasTreeView {
 		def marriage = new MarriageFigure(1942)
 		root.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
 		
-		root.add(connect(andy, marriage))
-		root.add(connect(betty, marriage))
-		root.add(connect(carl, marriage))
+		root.add(marriage.addParent(andy))
+		root.add(marriage.addParent(betty))
+		root.add(marriage.addChild(carl))
+		
 		
 		//add a loose note
 		def note = new NoteFigure("Smith Family")

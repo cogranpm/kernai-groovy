@@ -7,6 +7,7 @@ import org.eclipse.draw2d.geometry.Rectangle
 class MarriageFigure extends PolygonShape{
 	
 	private static final PointList ARROWHEAD = new PointList ([0, 0, -2, 2, -2, 0, -2, -2, 0, 0] as int[])
+	public static final RADIUS = 26
 	
 	MarriageFigure(int year){
 		Rectangle r = new Rectangle(0, 0, 50, 50)
@@ -30,7 +31,27 @@ class MarriageFigure extends PolygonShape{
 	PolylineConnection addParent(IFigure figure) {
 		def connection = new PolylineConnection()
 		connection.setSourceAnchor(new ChopboxAnchor(figure))
-		//connection.setTargetAnchor(anchor)
+		connection.setTargetAnchor(new MarriageAnchor(this))
+		
+		def decoration = new PolygonDecoration()
+		decoration.setTemplate(ARROWHEAD)
+		decoration.setBackgroundColor(ColorConstants.darkGray)
+		connection.setTargetDecoration(decoration)
+		
+		connection
+	}
+	
+	PolylineConnection addChild(IFigure figure) {
+		def connection = new PolylineConnection()
+		connection.setSourceAnchor(new MarriageAnchor(this))
+		connection.setTargetAnchor(new ChopboxAnchor(figure))
+		
+		def decoration = new PolygonDecoration()
+		decoration.setTemplate(ARROWHEAD)
+		decoration.setBackgroundColor(ColorConstants.white)
+		connection.setTargetDecoration(decoration)
+		
+		connection
 	}
 	
 	
