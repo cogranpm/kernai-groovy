@@ -12,6 +12,7 @@ import org.eclipse.draw2d.FreeformLayout
 import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
 import org.eclipse.draw2d.PolylineConnection
+import org.eclipse.draw2d.ScalableFreeformLayeredPane
 import org.eclipse.draw2d.ShortestPathConnectionRouter
 import org.eclipse.draw2d.geometry.PrecisionPoint
 import org.eclipse.draw2d.geometry.Rectangle
@@ -22,14 +23,14 @@ import org.eclipse.swt.widgets.Composite
 
 import com.parinherm.main.AppCache
 import com.parinherm.main.MainWindow
-
+import com.parinherm.view.ViewMessage
 import groovy.transform.TypeChecked
 
 @TypeChecked
-class ChristmasTreeView {
+class ChristmasTreeView implements ViewMessage {
 	
 	private AppCache cache = MainWindow.cache
-	private FreeformLayeredPane root = null
+	private ScalableFreeformLayeredPane root = null
 	private FreeformLayer primary = null
 	private ConnectionLayer connections = null
 	//private Figure contents = new Figure() 
@@ -46,7 +47,7 @@ class ChristmasTreeView {
 	}
 	
 	private FigureCanvas createDiagram(Composite parent) {
-		root = new FreeformLayeredPane()
+		root = new ScalableFreeformLayeredPane()
 		root.setFont(parent.getFont())
 		
 		primary = new FreeformLayer()
@@ -101,6 +102,39 @@ class ChristmasTreeView {
 		connection.setSourceAnchor(new ChopboxAnchor(figure1))
 		connection.setTargetAnchor(new ChopboxAnchor(figure2))
 		connection
+	}
+
+	@Override
+	public void messagePosted(String messageId, List args) {
+		switch(messageId) {
+			case "zoom":
+				doZoom (args[0] as double)
+				break
+			default:
+				break
+		}
+	}
+	
+	private void doZoom(double scale) {
+		if (scale == 0.0) {
+			scaleToFit()	
+		}
+		else {
+			root.setScale(scale)
+		}
+	}
+	
+	private void scaleToFit() {
+		def viewport = root.getParent() as FreeformViewport
+		assert viewport != null
+		def viewArea = viewport.getClientArea()
+		root.setScale(1.0d)
+		def extent = root.getFreeformExtent().union(0, 0)
+		
+		def wScale = (viewArea.width as double) / extent.width
+		def hScale = (viewArea.height as double) / extent.height
+		def newScale = Math.min(wScale, hScale)
+		root.setScale(newScale)
 	}
 	
 	/* old stuff 

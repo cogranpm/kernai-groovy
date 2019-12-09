@@ -1,10 +1,12 @@
 package com.parinherm.view.graphics
 
+import static com.parinherm.view.graphics.MarriageFigure.RADIUS
+
 import org.eclipse.draw2d.AbstractConnectionAnchor
 import org.eclipse.draw2d.IFigure
+import org.eclipse.draw2d.geometry.Dimension
 import org.eclipse.draw2d.geometry.Point
-
-import static com.parinherm.view.graphics.MarriageFigure.RADIUS
+import org.eclipse.draw2d.geometry.PrecisionPoint
 
 class MarriageAnchor extends AbstractConnectionAnchor {
 	
@@ -13,21 +15,28 @@ class MarriageAnchor extends AbstractConnectionAnchor {
 	}
 
 	@Override
-	public Point getLocation(Point ref) {
-		def origin = getOwner()?.getBounds()?.getCenter()
-		int Ax = Math.abs(ref.x - origin.x)
-		int Ay = Math.abs(ref.y - origin.y)
+	public PrecisionPoint getLocation(Point ref) {
+		assert getOwner() != null
+		def reference = new PrecisionPoint(ref)
+		def origin = new PrecisionPoint(getOwner().getBounds().getCenter())
+		def radius = new Dimension(RADIUS, RADIUS)
 		
-		int divisor = Ax + Ay
-		if(divisor == 0) return origin 
+		getOwner().translateToAbsolute(origin)
+		getOwner().translateToAbsolute(radius)
 		
-		int x = (RADIUS * Ax) / divisor
-		int y = (RADIUS * Ay) / divisor
+		double Ax = Math.abs(reference.x - origin.preciseX())
+		double Ay = Math.abs(reference.y - origin.preciseY())
 		
-		if (ref.x < origin.x) x = -x
-		if(ref.y < origin.y) y = -y
+		double divisor = Ax + Ay
+		if(divisor == 0.0d) return origin 
 		
-		new Point(origin.x + x, origin.y + y) 
+		double x = (radius.preciseWidth() * Ax) / divisor
+		double y = (radius.preciseHeight() * Ay) / divisor
+		
+		if (reference.preciseX() < origin.preciseX()) x = -x
+		if(reference.preciseY() < origin.preciseY()) y = -y
+		
+		new PrecisionPoint(origin.preciseX() + x, origin.preciseY() + y) 
 		
 	}
 }

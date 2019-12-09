@@ -3,8 +3,6 @@ package com.parinherm.main
 import org.eclipse.core.databinding.observable.Realm
 import org.eclipse.jface.action.*
 import org.eclipse.jface.databinding.swt.DisplayRealm
-import org.eclipse.jface.resource.ImageDescriptor
-import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
@@ -16,15 +14,15 @@ import org.eclipse.swt.widgets.*
 import com.parinherm.view.DataBindingView
 import com.parinherm.view.JSyntaxPaneView
 import com.parinherm.view.ScriptView
+import com.parinherm.view.ViewMessage
 import com.parinherm.view.graphics.ChristmasTreeView
-
-import groovy.transform.CompileStatic
 
 
 class MainWindow extends ApplicationWindow {
 	
 	Composite container
 	public static final AppCache cache = new AppCache()
+	ViewMessage currentView = null
 	
 	MainWindow(Shell parentShell) {
 		super(parentShell)
@@ -116,12 +114,36 @@ class MainWindow extends ApplicationWindow {
 					for (Control control : win.container.getChildren()) {
 						control.dispose()
 					}
-					ChristmasTreeView view = new ChristmasTreeView(container)
+					currentView = new ChristmasTreeView(container)
 					container.layout()
+					
 				}
 			}
 			xmasTree.setAccelerator(SWT.MOD1 | (('X' as char) as int))
 			
+			IAction zoomToFit= new Action("Scale to Fit") {
+				void run() {
+					currentView.messagePosted("zoom", [0])
+				}
+			}
+			
+			IAction zoom50 = new Action("50%") {
+				void run() {
+					currentView.messagePosted("zoom", [0.5d])
+				}
+			}
+			
+			IAction zoom100 = new Action("100%") {
+				void run() {
+					currentView.messagePosted("zoom", [1d])
+				}
+			}
+			
+			IAction zoom200 = new Action("200%") {
+				void run() {
+					currentView.messagePosted("zoom", [2d])
+				}
+			}
 			
 			
 			IAction actionQuit = new Action("&Quit") {
@@ -138,6 +160,12 @@ class MainWindow extends ApplicationWindow {
 			actionOpenFile.description = "blah"
 			actionOpenFile.actionDefinitionId = "crap"
 			MenuManager mm = new MenuManager("menu")
+			
+			MenuManager mnuZoom = new MenuManager("&Zoom")
+			mnuZoom.add(zoom50)
+			mnuZoom.add(zoom100)
+			mnuZoom.add(zoom200)
+			mnuZoom.add(zoomToFit)
 
 			
 			MenuManager fileMenu = new MenuManager("&File")
@@ -150,6 +178,8 @@ class MainWindow extends ApplicationWindow {
 			viewMenu.add(actionViewConsole)
 			viewMenu.add(snippets)
 			viewMenu.add(xmasTree)
+			viewMenu.add(mnuZoom)
+			
 			mm.add(viewMenu)
 
 						
