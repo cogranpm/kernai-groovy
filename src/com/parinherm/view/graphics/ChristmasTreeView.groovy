@@ -12,8 +12,10 @@ import org.eclipse.draw2d.FreeformLayout
 import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
 import org.eclipse.draw2d.PolylineConnection
+import org.eclipse.draw2d.RectangleFigure
 import org.eclipse.draw2d.ScalableFreeformLayeredPane
 import org.eclipse.draw2d.ShortestPathConnectionRouter
+import org.eclipse.draw2d.geometry.PrecisionDimension
 import org.eclipse.draw2d.geometry.PrecisionPoint
 import org.eclipse.draw2d.geometry.Rectangle
 import org.eclipse.swt.SWT
@@ -57,6 +59,12 @@ class ChristmasTreeView implements ViewMessage {
 		connections = new ConnectionLayer()
 		connections.setConnectionRouter(new ShortestPathConnectionRouter(primary))
 		root.add(connections, "Connections")
+		
+		//add a huge rectangle in the middle
+		def bigRect = new RectangleFigure()
+		bigRect.setPreferredSize(new PrecisionDimension(375.0d, 5757.0d))
+		def left = parent.clientWidth / 2.0d
+		primary.add(bigRect, new Rectangle(new PrecisionPoint(left, 0.0d), bigRect.getPreferredSize()))
 		
 		def andy = new PersonFigure("Andy", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1922, 2002)
 		andy.add(new NoteFigure("Andy was a \ngood man"))
