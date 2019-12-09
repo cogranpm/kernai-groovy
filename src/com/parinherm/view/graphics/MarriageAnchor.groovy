@@ -4,8 +4,8 @@ import static com.parinherm.view.graphics.MarriageFigure.RADIUS
 
 import org.eclipse.draw2d.AbstractConnectionAnchor
 import org.eclipse.draw2d.IFigure
-import org.eclipse.draw2d.geometry.Dimension
 import org.eclipse.draw2d.geometry.Point
+import org.eclipse.draw2d.geometry.PrecisionDimension
 import org.eclipse.draw2d.geometry.PrecisionPoint
 
 class MarriageAnchor extends AbstractConnectionAnchor {
@@ -19,8 +19,15 @@ class MarriageAnchor extends AbstractConnectionAnchor {
 		assert getOwner() != null
 		def reference = new PrecisionPoint(ref)
 		def origin = new PrecisionPoint(getOwner().getBounds().getCenter())
-		def radius = new Dimension(RADIUS, RADIUS)
+		def radius = new PrecisionDimension(RADIUS, RADIUS)
 		
+		//this does not seem to work, getting 1 pixel closer when scaled out
+//		if (reference.preciseX() < origin.preciseX())
+//			radius.width = 1.0d - radius.preciseWidth()
+//			
+//		if (reference.preciseY() < origin.preciseY())
+//			radius.height = 1.0d - radius.preciseHeight()
+
 		getOwner().translateToAbsolute(origin)
 		getOwner().translateToAbsolute(radius)
 		
