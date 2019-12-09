@@ -23,10 +23,17 @@ class MarriageFigure extends PolygonShape{
 		setPreferredSize(r.getSize().expand(1, 1))
 		
 		setLayoutManager(new StackLayout())
-		add(new Label("$year"))
+		add(new Label("$year") {
+			@Override
+			public boolean containsPoint(int x, int y) {
+				false
+			}
+		})
 		
 		new FigureMover(this)
 	}
+	
+	
 	
 	PolylineConnection addParent(IFigure figure) {
 		def connection = new PolylineConnection()

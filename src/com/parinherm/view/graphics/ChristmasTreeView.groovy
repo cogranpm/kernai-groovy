@@ -4,17 +4,20 @@ package com.parinherm.view.graphics
 import org.eclipse.draw2d.ChopboxAnchor
 import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Connection
-import org.eclipse.draw2d.Figure
+import org.eclipse.draw2d.ConnectionLayer
+import org.eclipse.draw2d.FigureCanvas
+import org.eclipse.draw2d.FreeformLayer
+import org.eclipse.draw2d.FreeformLayeredPane
+import org.eclipse.draw2d.FreeformLayout
+import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
-import org.eclipse.draw2d.LightweightSystem
 import org.eclipse.draw2d.PolylineConnection
-import org.eclipse.draw2d.XYLayout
+import org.eclipse.draw2d.ShortestPathConnectionRouter
 import org.eclipse.draw2d.geometry.PrecisionPoint
 import org.eclipse.draw2d.geometry.Rectangle
 import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
-import org.eclipse.swt.widgets.Canvas
 import org.eclipse.swt.widgets.Composite
 
 import com.parinherm.main.AppCache
@@ -26,6 +29,9 @@ import groovy.transform.TypeChecked
 class ChristmasTreeView {
 	
 	private AppCache cache = MainWindow.cache
+	private FreeformLayeredPane root = null
+	private FreeformLayer primary = null
+	private ConnectionLayer connections = null
 	//private Figure contents = new Figure() 
 	//private ChristmasTreeFigure xmas = new ChristmasTreeFigure()
 	
@@ -34,34 +40,40 @@ class ChristmasTreeView {
 		//new Figure
 		//def canvas = new Canvas(parent, SWT.NONE)
 		parent.setLayout(new GridLayout())
-		Canvas canvas = createDiagram(parent)
+		FigureCanvas canvas = createDiagram(parent)
 		canvas.setLayoutData(new GridData(GridData.FILL_BOTH))
 
 	}
 	
-	private Canvas createDiagram(Composite parent) {
-		Figure root = new Figure()
+	private FigureCanvas createDiagram(Composite parent) {
+		root = new FreeformLayeredPane()
 		root.setFont(parent.getFont())
-		XYLayout layout = new XYLayout()
-		root.setLayoutManager(layout)
+		
+		primary = new FreeformLayer()
+		primary.setLayoutManager(new FreeformLayout())
+		root.add(primary, "Primary")
+		
+		connections = new ConnectionLayer()
+		connections.setConnectionRouter(new ShortestPathConnectionRouter(primary))
+		root.add(connections, "Connections")
 		
 		def andy = new PersonFigure("Andy", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1922, 2002)
 		andy.add(new NoteFigure("Andy was a \ngood man"))
-		root.add(andy, new Rectangle(new PrecisionPoint(10.0d, 10.0d), andy.getPreferredSize()))
+		primary.add(andy, new Rectangle(new PrecisionPoint(10.0d, 10.0d), andy.getPreferredSize()))
 		def betty = new PersonFigure("Betty", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_INFO), 1924, 2006)
 		betty.add(new NoteFigure("Betty was a \ngood womman"))
-		root.add(betty, new Rectangle(new PrecisionPoint(230.0d, 10.0d), betty.getPreferredSize()))
+		primary.add(betty, new Rectangle(new PrecisionPoint(230.0d, 10.0d), betty.getPreferredSize()))
 		def carl = new PersonFigure("Carl",MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1947, -1)
 		carl.add(new NoteFigure("Carl is a \ndoofus man"))
 		carl.add(new NoteFigure("He lives in\nBoston, MA."))
-		root.add(carl, new Rectangle(new PrecisionPoint(120.0d, 120.0d), carl.getPreferredSize()))
+		primary.add(carl, new Rectangle(new PrecisionPoint(120.0d, 120.0d), carl.getPreferredSize()))
 		
 		def marriage = new MarriageFigure(1942)
-		root.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
+		primary.add(marriage, new Rectangle(new PrecisionPoint(145.9d, 35.0d), marriage.getPreferredSize()))
 		
-		root.add(marriage.addParent(andy))
-		root.add(marriage.addParent(betty))
-		root.add(marriage.addChild(carl))
+		connections.add(marriage.addParent(andy))
+		connections.add(marriage.addParent(betty))
+		connections.add(marriage.addChild(carl))
 		
 		
 		//add a loose note
@@ -69,12 +81,14 @@ class ChristmasTreeView {
 		note.setFont(parent.getFont())
 		def noteSize = note.getPreferredSize()
 		
-		root.add(note, new Rectangle( new PrecisionPoint(10, 220 - noteSize.height), noteSize))
+		primary.add(note, new Rectangle( new PrecisionPoint(10, 220 - noteSize.height), noteSize))
 		
-		Canvas canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED)
+		FigureCanvas canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED)
 		canvas.setBackground(ColorConstants.white)
-		LightweightSystem lws = new LightweightSystem(canvas)
-		lws.setContents(root)
+		canvas.setViewport(new FreeformViewport())
+		//LightweightSystem lws = new LightweightSystem(canvas)
+		//lws.setContents(root)
+		canvas.setContents(root)
 		canvas
 	}
 	
