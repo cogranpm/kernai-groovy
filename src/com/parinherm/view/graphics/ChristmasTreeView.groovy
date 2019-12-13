@@ -1,20 +1,25 @@
 package com.parinherm.view.graphics
 
 
+import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
+
 import org.eclipse.draw2d.ChopboxAnchor
 import org.eclipse.draw2d.ColorConstants
 import org.eclipse.draw2d.Connection
 import org.eclipse.draw2d.ConnectionLayer
 import org.eclipse.draw2d.FigureCanvas
 import org.eclipse.draw2d.FreeformLayer
-import org.eclipse.draw2d.FreeformLayeredPane
 import org.eclipse.draw2d.FreeformLayout
+import org.eclipse.draw2d.FreeformListener
 import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
+import org.eclipse.draw2d.LightweightSystem
 import org.eclipse.draw2d.PolylineConnection
 import org.eclipse.draw2d.RectangleFigure
 import org.eclipse.draw2d.ScalableFreeformLayeredPane
 import org.eclipse.draw2d.ShortestPathConnectionRouter
+import org.eclipse.draw2d.geometry.Point
 import org.eclipse.draw2d.geometry.PrecisionDimension
 import org.eclipse.draw2d.geometry.PrecisionPoint
 import org.eclipse.draw2d.geometry.Rectangle
@@ -22,19 +27,29 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.widgets.Listener
 
 import com.parinherm.main.AppCache
 import com.parinherm.main.MainWindow
 import com.parinherm.view.ViewMessage
+
 import groovy.transform.TypeChecked
 
 @TypeChecked
 class ChristmasTreeView implements ViewMessage {
 	
 	private AppCache cache = MainWindow.cache
+	private Composite parent
 	private ScalableFreeformLayeredPane root = null
 	private FreeformLayer primary = null
 	private ConnectionLayer connections = null
+	private static final Double TRUNK_WIDTH = 40.0d
+	private static final Double TRUNK_HEIGHT = 700.0d
+	private static final Double BRANCH_HEIGHT = 20.0d
+	private RectangleFigure trunkFigure = new RectangleFigure()
+	private RectangleFigure branch = new RectangleFigure()
+	
 	//private Figure contents = new Figure() 
 	//private ChristmasTreeFigure xmas = new ChristmasTreeFigure()
 	
@@ -49,6 +64,7 @@ class ChristmasTreeView implements ViewMessage {
 	}
 	
 	private FigureCanvas createDiagram(Composite parent) {
+		this.parent = parent
 		root = new ScalableFreeformLayeredPane()
 		root.setFont(parent.getFont())
 		
@@ -56,15 +72,26 @@ class ChristmasTreeView implements ViewMessage {
 		primary.setLayoutManager(new FreeformLayout())
 		root.add(primary, "Primary")
 		
+		
 		connections = new ConnectionLayer()
 		connections.setConnectionRouter(new ShortestPathConnectionRouter(primary))
 		root.add(connections, "Connections")
 		
-		//add a huge rectangle in the middle
-		def bigRect = new RectangleFigure()
-		bigRect.setPreferredSize(new PrecisionDimension(375.0d, 5757.0d))
-		def left = parent.clientWidth / 2.0d
-		primary.add(bigRect, new Rectangle(new PrecisionPoint(left, 0.0d), bigRect.getPreferredSize()))
+
+		
+		//just make trunk really long at this point
+		trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, TRUNK_HEIGHT))
+		trunkFigure.setBackgroundColor(ColorConstants.darkGreen)
+		primary.add(trunkFigure, new Rectangle(new PrecisionPoint(getTrunkLeft(), 0.0d), trunkFigure.getPreferredSize()))
+		
+		//lets draw a branch
+		
+		branch.setBackgroundColor(ColorConstants.red)
+		println parent.bounds.width
+		//branch.setPreferredSize(new PrecisionDimension(root.clientArea.preciseWidth(), BRANCH_HEIGHT))
+		branch.setPreferredSize(new PrecisionDimension(parent.bounds.width, 20.0d))
+		primary.add(branch, new Rectangle(new PrecisionPoint(0.0d, 150.0d), branch.getPreferredSize()))
+	
 		
 		def andy = new PersonFigure("Andy", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1922, 2002)
 		andy.add(new NoteFigure("Andy was a \ngood man"))
@@ -92,17 +119,58 @@ class ChristmasTreeView implements ViewMessage {
 		
 		primary.add(note, new Rectangle( new PrecisionPoint(10, 220 - noteSize.height), noteSize))
 		
-		FigureCanvas canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED)
+		//sending in the lws as last argument seems to make no difference
+		FigureCanvas canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED, new LightweightSystem())
 		canvas.setBackground(ColorConstants.white)
 		canvas.setViewport(new FreeformViewport())
+		canvas.viewport.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				println evt.propertyName
+				if (evt.propertyName == 'viewLocation') {
+					println canvas.viewport.size
+				}
+				
+			}
+			
+		})
+		
+		
+		//FigureCanvas does not seem to need this
 		//LightweightSystem lws = new LightweightSystem(canvas)
 		//lws.setContents(root)
 		canvas.setContents(root)
+		
+		
+		//when the viewport size changes, move the trunk to the middle
+		root.addFreeformListener(new FreeformListener() {
+
+			@Override
+			public void notifyFreeformExtentChanged() {
+				trunkFigure.setLocation(new PrecisionPoint(getTrunkLeft(), trunkFigure.getLocation().preciseY()))
+				branch.setPreferredSize(parent.bounds.width, branch.bounds.height)
+				root.revalidate()
+			}
+			
+		})
+		
+
+
+
 		canvas
 	}
 	
 
-
+	private Double getTrunkLeft() {
+		Rectangle viewArea = root.clientArea
+		(viewArea.preciseWidth() / 2.0d) - (TRUNK_WIDTH / 2.0d)
+	}
+	
+	private Double getTrunkMiddle() {
+		Rectangle viewArea = root.clientArea
+		(viewArea.preciseWidth() / 2.0d)
+	}
 	
 	
 	private Connection connect(IFigure figure1, IFigure figure2) {
