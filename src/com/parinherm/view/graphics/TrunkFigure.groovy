@@ -18,30 +18,27 @@ class TrunkFigure  extends RectangleFigure{
 	TrunkFigure() {
 		super()
 		setBackgroundColor(ColorConstants.blue)
-		
-		
-		RectangleFigure branch = new RectangleFigure()
-		branch.setSize(500, 500)
-		//add(branch)
-		
-	
-		
-		Button buttonNext = new Button("Next")
-		//add(buttonNext, new Rectangle(0, 60, 100, 50))
-		
 		this.setLayoutManager(layout)
 		
-		layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
+		//layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
 		add(button)
 		
 		button.addActionListener({
 			setBackgroundColor(ColorConstants.cyan)
-			})
+		})
+
+	}
+	
+	@Override
+	public void validate() {
+		//making sure the button is always in the middle of the figure
+		layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
+		super.validate();
 	}
 	
 
 	def relocate() {
-		layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
+		//layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
 	}
 
 	

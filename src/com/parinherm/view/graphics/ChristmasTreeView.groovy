@@ -14,6 +14,8 @@ import org.eclipse.draw2d.FreeformLayout
 import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
 import org.eclipse.draw2d.LightweightSystem
+import org.eclipse.draw2d.MouseEvent
+import org.eclipse.draw2d.MouseListener
 import org.eclipse.draw2d.PolylineConnection
 import org.eclipse.draw2d.RectangleFigure
 import org.eclipse.draw2d.ScalableFreeformLayeredPane
@@ -44,9 +46,10 @@ class ChristmasTreeView implements ViewMessage {
 	private ConnectionLayer connections = null
 	private static final Double TRUNK_WIDTH = 40.0d
 	private static final Double TRUNK_HEIGHT = 700.0d
-	private static final Double BRANCH_HEIGHT = 20.0d
+	private static final Double BRANCH_HEIGHT = 30.0d
 	private TrunkFigure trunkFigure = new TrunkFigure()
 	private RectangleFigure branch = new RectangleFigure()
+	private List<BranchFigure> branchFigures = []
 	
 	//private Figure contents = new Figure() 
 	//private ChristmasTreeFigure xmas = new ChristmasTreeFigure()
@@ -145,7 +148,26 @@ class ChristmasTreeView implements ViewMessage {
 		//trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, TRUNK_HEIGHT))
 		trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, parent.clientArea.height as Double))
 		primary.add(trunkFigure, new Rectangle(new PrecisionPoint(getTrunkLeft(), 0.0d), trunkFigure.getPreferredSize()))
+		trunkFigure.addMouseListener(new MouseListener() {
 
+			@Override
+			public void mouseDoubleClicked(MouseEvent e) {
+				BranchFigure branch = new BranchFigure()
+				branch.setPreferredSize(new PrecisionDimension(parent.clientArea.width as Double, BRANCH_HEIGHT))
+				primary.add(branch, new Rectangle(new PrecisionPoint(0.0d, e.location.preciseY()), branch.getPreferredSize()))
+				branchFigures << branch
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				
+			}
+		})
 		
 		
 		/*
