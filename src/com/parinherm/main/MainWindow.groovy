@@ -116,6 +116,7 @@ class MainWindow extends ApplicationWindow {
 					}
 					currentView = new ChristmasTreeView(container)
 					container.layout()
+					currentView.createContents()
 					
 				}
 			}

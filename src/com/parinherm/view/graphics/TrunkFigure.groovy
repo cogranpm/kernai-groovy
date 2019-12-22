@@ -1,108 +1,49 @@
 package com.parinherm.view.graphics
 
 
+import org.eclipse.draw2d.Button
 import org.eclipse.draw2d.ColorConstants
-import org.eclipse.draw2d.Figure
-import org.eclipse.draw2d.FlowLayout
-import org.eclipse.draw2d.FreeformLayout
-import org.eclipse.draw2d.Graphics
-import org.eclipse.draw2d.GridData
-import org.eclipse.draw2d.GridLayout
-import org.eclipse.draw2d.Label
-import org.eclipse.draw2d.PositionConstants
-import org.eclipse.draw2d.geometry.*
-import org.eclipse.swt.SWT
+import org.eclipse.draw2d.RectangleFigure
+import org.eclipse.draw2d.XYLayout
+import org.eclipse.draw2d.geometry.Dimension
+import org.eclipse.draw2d.geometry.Point
+import org.eclipse.draw2d.geometry.Rectangle
 
 
-class TrunkFigure  extends Figure{
+class TrunkFigure  extends RectangleFigure{
 	
-	private static final int FOLDED_CORNER_LENGTH = 12
-	private Label label
+	XYLayout layout = new XYLayout()
+	Button button = new Button("fred")
 	
 	TrunkFigure() {
 		super()
+		setBackgroundColor(ColorConstants.blue)
 		
 		
+		RectangleFigure branch = new RectangleFigure()
+		branch.setSize(500, 500)
+		//add(branch)
 		
-		//example draws box around a label
-		label = new Label();
-		label.setTextAlignment(PositionConstants.LEFT);
-		label.setText("I'm dyin ova here")
-
-		//setLayoutManager(new FlowLayout())
-		//setLayoutManager(new FreeformLayout());
-		setLayoutManager(new GridLayout(1, true))
-		GridData gd = new GridData()
-		gd.verticalAlignment = SWT.FILL
-		gd.horizontalAlignment = SWT.FILL
-		gd.grabExcessVerticalSpace = true
-		gd.grabExcessHorizontalSpace = true
-		layoutManager.setConstraint(label, gd)
-	//	add(label)
-		setSize(6000, 5000)
-		repaint()
+	
+		
+		Button buttonNext = new Button("Next")
+		//add(buttonNext, new Rectangle(0, 60, 100, 50))
+		
+		this.setLayoutManager(layout)
+		
+		layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
+		add(button)
+		
+		button.addActionListener({
+			setBackgroundColor(ColorConstants.cyan)
+			})
 	}
 	
-	@Override
-	protected void paintFigure(Graphics g) {
-		super.paintFigure(g);
-		//Rectangle r = getClientArea()
-		Rectangle r = getBounds()
-		println r
-		
-		//draw a line halfway across top to bottom
-		Integer trunkWidth = 20
-		Integer middle = r.width.intdiv(2)
-		Integer trunkLeft = middle - trunkWidth
-		Integer trunkRight = trunkLeft + 10
-		//Integer trunkRight = middle + trunkWidth
-		
-		
-		
-		//g.drawLine(trunkLeft , r.y,  trunkLeft, r.y + r.height)
-		//g.drawLine(trunkRight, r.y,  trunkRight, r.y + r.height)
 
-		g.drawText("go orf", 10, 10)
-
-		//g.drawRectangle( new Rectangle(x: 10, y: 10, width: 500, height: 800))
-
-		/*
-		// draw the rectangle without the top left corner
-		g.drawLine(r.x, r.y,
-		r.x + r.width - FOLDED_CORNER_LENGTH - 1, r.y); // top
-		g.drawLine(r.x, r.y,
-		r.x, r.y + r.height - 1); // left
-		g.drawLine(r.x, r.y + r.height - 1,
-		r.x + r.width - 1, r.y + r.height - 1); // bottom
-		g.drawLine(r.x + r.width - 1, r.y + FOLDED_CORNER_LENGTH - 1,
-		r.x + r.width - 1, r.y + r.height - 1); // right
-		// draw the label
-		setConstraint(label, new Rectangle(r.x + 10, r.y + 10,
-		r.width - 21, r.height - 21));
-		// draw the folded corner
-		Point topLeftCorner, bottomLeftCorner, bottomRightCorner;
-		PointList trianglePolygon;
-		topLeftCorner =
-		new Point(r.x + r.width - FOLDED_CORNER_LENGTH - 1, r.y);
-		bottomLeftCorner =
-		new Point(r.x + r.width - FOLDED_CORNER_LENGTH - 1, r.y
-		+ FOLDED_CORNER_LENGTH);
-		bottomRightCorner =
-		new Point(r.x + r.width - 1, r.y + FOLDED_CORNER_LENGTH);
-		trianglePolygon = new PointList(3);
-		trianglePolygon.addPoint(topLeftCorner);
-		trianglePolygon.addPoint(bottomLeftCorner);
-		trianglePolygon.addPoint(bottomRightCorner);
-		g.setBackgroundColor(ColorConstants.lightGray);
-		g.fillPolygon(trianglePolygon);
-		g.drawLine(topLeftCorner, bottomLeftCorner);
-		g.drawLine(bottomLeftCorner, bottomRightCorner);
-		g.setLineDash([1] as int[]);
-		g.drawLine(bottomRightCorner, topLeftCorner);
-		*/
-		
-		
+	def relocate() {
+		layout.setConstraint(button, new Rectangle(0, size.height / 2 as Integer, button.preferredSize.width, button.preferredSize.height))
 	}
+
 	
 		
 }

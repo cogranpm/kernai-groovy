@@ -11,7 +11,6 @@ import org.eclipse.draw2d.ConnectionLayer
 import org.eclipse.draw2d.FigureCanvas
 import org.eclipse.draw2d.FreeformLayer
 import org.eclipse.draw2d.FreeformLayout
-import org.eclipse.draw2d.FreeformListener
 import org.eclipse.draw2d.FreeformViewport
 import org.eclipse.draw2d.IFigure
 import org.eclipse.draw2d.LightweightSystem
@@ -27,8 +26,6 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Event
-import org.eclipse.swt.widgets.Listener
 
 import com.parinherm.main.AppCache
 import com.parinherm.main.MainWindow
@@ -39,6 +36,7 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class ChristmasTreeView implements ViewMessage {
 	
+	Composite parent
 	private AppCache cache = MainWindow.cache
 	private Composite parent
 	private ScalableFreeformLayeredPane root = null
@@ -47,20 +45,24 @@ class ChristmasTreeView implements ViewMessage {
 	private static final Double TRUNK_WIDTH = 40.0d
 	private static final Double TRUNK_HEIGHT = 700.0d
 	private static final Double BRANCH_HEIGHT = 20.0d
-	private RectangleFigure trunkFigure = new RectangleFigure()
+	private TrunkFigure trunkFigure = new TrunkFigure()
 	private RectangleFigure branch = new RectangleFigure()
 	
 	//private Figure contents = new Figure() 
 	//private ChristmasTreeFigure xmas = new ChristmasTreeFigure()
 	
 	ChristmasTreeView(Composite parent){
-
-		//new Figure
-		//def canvas = new Canvas(parent, SWT.NONE)
-		parent.setLayout(new GridLayout())
-		FigureCanvas canvas = createDiagram(parent)
+		this.parent = parent
+	}
+	
+	@Override
+	void createContents() {
+		this.parent.setLayout(new GridLayout())
+		
+		FigureCanvas canvas = createDiagram(this.parent)
 		canvas.setLayoutData(new GridData(GridData.FILL_BOTH))
-
+		parent.layout()
+		
 	}
 	
 	private FigureCanvas createDiagram(Composite parent) {
@@ -77,13 +79,76 @@ class ChristmasTreeView implements ViewMessage {
 		connections.setConnectionRouter(new ShortestPathConnectionRouter(primary))
 		root.add(connections, "Connections")
 		
+		//drawPeople()
+		drawTests()
+		
+		
+		//sending in the lws as last argument seems to make no difference
+		FigureCanvas canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED, new LightweightSystem())
+		canvas.setBackground(ColorConstants.white)
+		canvas.setViewport(new FreeformViewport())
+		canvas.viewport.addPropertyChangeListener(new PropertyChangeListener() {
 
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				//println evt.propertyName
+				if (evt.propertyName == 'viewLocation') {
+					//occurs when scrolled
+					//println canvas.viewport.size
+				}
+				
+			}
+			
+		})
+		
+		
+		//FigureCanvas does not seem to need this
+		//LightweightSystem lws = new LightweightSystem(canvas)
+		//lws.setContents(root)
+		canvas.setContents(root)
+		
+		
+		//when the viewport size changes, move the trunk to the middle
+		root.addFreeformListener({
+			
+			//this is probably, need the height to be a variable, not constrained to window height
+			//trunkFigure.setSize(TRUNK_WIDTH as Integer, parent.bounds.height)
+			
+			
+			Point center = new Point((parent.bounds.width / 2) as Integer, 0)
+			trunkFigure.setLocation(center)
+			trunkFigure.relocate()
+		})
+		
+		/*root.addFreeformListener(new FreeformListener() {
+
+			@Override
+			public void notifyFreeformExtentChanged() {
+				//trunkFigure.setLocation(new PrecisionPoint(getTrunkLeft(), trunkFigure.getLocation().preciseY()))
+				//branch.setPreferredSize(parent.bounds.width, branch.bounds.height)
+				println "extents changed"
+				trunkFigure.setSize(TRUNK_WIDTH as Integer, parent.bounds.height)
+				root.revalidate()
+			}
+			
+		})
+		*/
+		
+		
+		
+		canvas
+	}
+	
+	private void drawTests() {
 		
 		//just make trunk really long at this point
-		trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, TRUNK_HEIGHT))
-		trunkFigure.setBackgroundColor(ColorConstants.darkGreen)
+		//trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, TRUNK_HEIGHT))
+		trunkFigure.setPreferredSize(new PrecisionDimension(TRUNK_WIDTH, parent.clientArea.height as Double))
 		primary.add(trunkFigure, new Rectangle(new PrecisionPoint(getTrunkLeft(), 0.0d), trunkFigure.getPreferredSize()))
+
 		
+		
+		/*
 		//lets draw a branch
 		
 		branch.setBackgroundColor(ColorConstants.red)
@@ -91,8 +156,21 @@ class ChristmasTreeView implements ViewMessage {
 		//branch.setPreferredSize(new PrecisionDimension(root.clientArea.preciseWidth(), BRANCH_HEIGHT))
 		branch.setPreferredSize(new PrecisionDimension(parent.bounds.width, 20.0d))
 		primary.add(branch, new Rectangle(new PrecisionPoint(0.0d, 150.0d), branch.getPreferredSize()))
-	
+		*/
 		
+		def hp = new HandPaintedTest(parent)
+		hp.setPreferredSize(parent.clientArea.width, parent.clientArea.height)
+		def hpSize = hp.getPreferredSize()
+		//PrecisionPoint hpSize = new PrecisionPoint(parent.clientArea.width as Double, parent.clientArea.height as Double)
+		//def hpSize = new Point(-1, -1)
+		//primary.add(hp, new Rectangle(new PrecisionPoint(0.0d, 0.0d), hpSize))
+		//primary.add(hp)
+		
+		//parent.getShell().addListener(SWT.RESIZE, { e -> println "hello"})
+		//parent.addListener(SWT.RESIZE, {e -> println "sheit boy"})
+	}
+	
+	private void drawPeople() {
 		def andy = new PersonFigure("Andy", MainWindow.cache.getImage(MainWindow.cache.IMAGE_STOCK_EXIT), 1922, 2002)
 		andy.add(new NoteFigure("Andy was a \ngood man"))
 		primary.add(andy, new Rectangle(new PrecisionPoint(10.0d, 10.0d), andy.getPreferredSize()))
@@ -117,59 +195,22 @@ class ChristmasTreeView implements ViewMessage {
 		note.setFont(parent.getFont())
 		def noteSize = note.getPreferredSize()
 		
-		primary.add(note, new Rectangle( new PrecisionPoint(10, 220 - noteSize.height), noteSize))
-		
-		//sending in the lws as last argument seems to make no difference
-		FigureCanvas canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED, new LightweightSystem())
-		canvas.setBackground(ColorConstants.white)
-		canvas.setViewport(new FreeformViewport())
-		canvas.viewport.addPropertyChangeListener(new PropertyChangeListener() {
+		primary.add(note, new Rectangle( new PrecisionPoint(10.0d, 220 - noteSize.height), noteSize))
 
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				println evt.propertyName
-				if (evt.propertyName == 'viewLocation') {
-					println canvas.viewport.size
-				}
-				
-			}
-			
-		})
-		
-		
-		//FigureCanvas does not seem to need this
-		//LightweightSystem lws = new LightweightSystem(canvas)
-		//lws.setContents(root)
-		canvas.setContents(root)
-		
-		
-		//when the viewport size changes, move the trunk to the middle
-		root.addFreeformListener(new FreeformListener() {
-
-			@Override
-			public void notifyFreeformExtentChanged() {
-				trunkFigure.setLocation(new PrecisionPoint(getTrunkLeft(), trunkFigure.getLocation().preciseY()))
-				branch.setPreferredSize(parent.bounds.width, branch.bounds.height)
-				root.revalidate()
-			}
-			
-		})
-		
-
-
-
-		canvas
 	}
 	
 
 	private Double getTrunkLeft() {
 		Rectangle viewArea = root.clientArea
-		(viewArea.preciseWidth() / 2.0d) - (TRUNK_WIDTH / 2.0d)
+		//(viewArea.preciseWidth() / 2.0d) - (TRUNK_WIDTH / 2.0d)
+		(parent.clientArea.width / 2.0d) - (TRUNK_WIDTH / 2.0d)
 	}
 	
 	private Double getTrunkMiddle() {
 		Rectangle viewArea = root.clientArea
-		(viewArea.preciseWidth() / 2.0d)
+		//(viewArea.preciseWidth() / 2.0d)
+		(parent.clientArea.width / 2.0d)
+		
 	}
 	
 	

@@ -21,6 +21,8 @@ import groovy.transform.TypeChecked
 
 @TypeChecked
 class PersonFigure extends Figure {
+	
+	
 	PersonFigure(String name, Image image, int birthYear, int deathYear){
 		
 		final def layout = new ToolbarLayout()
