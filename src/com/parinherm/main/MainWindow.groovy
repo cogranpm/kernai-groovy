@@ -157,6 +157,13 @@ class MainWindow extends ApplicationWindow {
 			//this is how to do accelerator in groovy 
 			char q = 'Q'
 			actionQuit.setAccelerator(SWT.MOD1 | q as int)
+			
+
+			//can't figure out how to do properties in map format
+			IAction actionQuiz  = [run: {println 'hello'}] as Action
+			actionQuiz.text = 'Quiz'
+			actionQuiz.setAccelerator(SWT.MOD1 | (char)'z' as int)
+		
 				
 			actionOpenFile.description = "blah"
 			actionOpenFile.actionDefinitionId = "crap"
@@ -180,6 +187,8 @@ class MainWindow extends ApplicationWindow {
 			viewMenu.add(snippets)
 			viewMenu.add(xmasTree)
 			viewMenu.add(mnuZoom)
+			
+			viewMenu.add(actionQuiz)
 			
 			mm.add(viewMenu)
 
