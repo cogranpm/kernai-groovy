@@ -11,8 +11,10 @@ import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 
+import com.parinherm.ui.controls.CompositeHelper
 import com.parinherm.view.DataBindingView
 import com.parinherm.view.JSyntaxPaneView
+import com.parinherm.view.QuizView
 import com.parinherm.view.ScriptView
 import com.parinherm.view.ViewMessage
 import com.parinherm.view.graphics.ChristmasTreeView
@@ -84,12 +86,7 @@ class MainWindow extends ApplicationWindow {
 			IAction actionViewConsole  = new Action("Console") {
 				@Override
 				public void run() {
-					for(Control control : win.container.getChildren())
-					{
-						control.dispose();
-					}
-				
-					
+					CompositeHelper.clear(container)
 					JSyntaxPaneView view = new JSyntaxPaneView(container)
 					win.container.layout
 				}
@@ -98,12 +95,7 @@ class MainWindow extends ApplicationWindow {
 			IAction snippets  = new Action("Snippets") {
 				@Override
 				public void run() {
-					for(Control control : win.container.getChildren())
-					{
-						control.dispose();
-					}
-				
-					
+					CompositeHelper.clear(container)
 					ScriptView view = new ScriptView(container)
 					win.container.layout
 				}
@@ -111,9 +103,7 @@ class MainWindow extends ApplicationWindow {
 			
 			IAction xmasTree = new Action("&XMas Tree") {
 				public void run () {
-					for (Control control : win.container.getChildren()) {
-						control.dispose()
-					}
+					CompositeHelper.clear(container)
 					currentView = new ChristmasTreeView(container)
 					container.layout()
 					currentView.createContents()
@@ -160,7 +150,11 @@ class MainWindow extends ApplicationWindow {
 			
 
 			//can't figure out how to do properties in map format
-			IAction actionQuiz  = [run: {println 'hello'}] as Action
+			IAction actionQuiz  = [run: {
+				CompositeHelper.clear(container)
+				QuizView view = new QuizView(container)
+				container.layout()
+				}] as Action
 			actionQuiz.text = 'Quiz'
 			actionQuiz.setAccelerator(SWT.MOD1 | (char)'z' as int)
 		
