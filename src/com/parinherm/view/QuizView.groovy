@@ -30,6 +30,9 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
+import com.parinherm.main.AppCache
+import com.parinherm.persistence.KernaiDatabase
+
 
 class QuizView extends Composite{
 	//def props = [id:0, questionText:'', answerText:'']
@@ -56,6 +59,10 @@ class QuizView extends Composite{
 			public void widgetSelected(SelectionEvent e) {
 				def x = value.getValue() as WritableMap
 				println x.get('questionText')
+				
+				//try some db stuff
+				
+				
 			}
 		})
 		

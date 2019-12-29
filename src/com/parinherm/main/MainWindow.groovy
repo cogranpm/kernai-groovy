@@ -241,7 +241,7 @@ class MainWindow extends ApplicationWindow {
 	
 	@Override
 	public boolean close() {
-		// TODO Auto-generated method stub
+		cache.db.close()
 		return super.close();
 	}
 	

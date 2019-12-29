@@ -4,6 +4,8 @@ import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.graphics.Image
 
+import com.parinherm.persistence.KernaiDatabase
+
 
 class AppCache {
 	
@@ -11,6 +13,7 @@ class AppCache {
 	private Random random
 	final static int UPPER_LIMIT_INT_RANDOM = 400 
 	
+	public final static APP_NAME = "kernai"
 	private ImageRegistry imageRegistry = null
 	public final static String IMAGE_ACTVITY_SMALL = "activitysmall"
 	public final static String IMAGE_ACTIVITY_LARGE = "activitylarge"
@@ -19,10 +22,20 @@ class AppCache {
 	public final static String IMAGE_GOUP = "goup"
 	public final static String IMAGES_PATH = "/images/"
 	
+	public final static String USER_HOME = System.getProperty('user.home')
+	KernaiDatabase db = null
+	
+	
 	AppCache() {
 		random = new Random()
-		
-	}
+		def databaseDir = "$USER_HOME$File.separator$APP_NAME"
+		File dir = new File(databaseDir)
+		if(!dir.exists()) {
+			dir.mkdirs()
+		}
+		db = new KernaiDatabase(databaseDir)
+	}	
+	
 	
 	int getRandomInt() {
 		random.nextInt(UPPER_LIMIT_INT_RANDOM)

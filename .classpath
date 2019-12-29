@@ -12,6 +12,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/groovy"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/google"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/swt-jface"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/berkeleydb-je"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jsyntaxpane"/>
