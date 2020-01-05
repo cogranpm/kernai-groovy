@@ -2,6 +2,14 @@
  * implements view for saving a single question
  * going to test out jface databinding to a groovy map
  * 
+ * current best way to do this is store json column in database which can 
+ * convert to a groovy map easily, which can be converted easily to 
+ * jface writableMap and observed easily
+ * no domain class required, no mapping, always the same sql query
+ * catch is you can't query fields at database level
+ *  
+ * 
+ * 
 
 https://stackoverflow.com/questions/31560084/jface-databinding-map-property-to-swt-text-field
 Finally found it... map entries can be observed via
@@ -32,6 +40,8 @@ import org.eclipse.swt.widgets.Text
 
 import com.parinherm.main.AppCache
 import com.parinherm.persistence.KernaiDatabase
+import groovy.json.JsonSlurper
+import static groovy.json.JsonOutput.*
 
 
 class QuizView extends Composite{
@@ -39,13 +49,18 @@ class QuizView extends Composite{
 	DataBindingContext dbc = new DataBindingContext()
 	Text txtId
 	WritableValue value = new WritableValue()
-	WritableMap wm = new WritableMap() 
+	WritableMap wm = new WritableMap()
 	
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
 		
-		wm.put("id", 0)
-		wm.put("questionText", 'hello')
+		//lets create a map from a json string
+		String jsonTest = """ {"id": 0, "questionText": "what is the color of postassium"}    """
+		//jsonStuff is a map structure
+		def jsonStuff = new JsonSlurper().parseText(jsonTest)
+		//jsonStuff.each { key, value -> wm.put(key, value)}
+		wm.putAll(jsonStuff)
+
 		value.setValue(wm)
 		
 		Label lblId = new Label(this, SWT.NONE)
@@ -57,8 +72,10 @@ class QuizView extends Composite{
 		btnDo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				def x = value.getValue() as WritableMap
-				println x.get('questionText')
+				// save the map to jjson in a database column
+				println toJson(wm)
+			//	println x.
+				//println x.get('questionText')
 				
 				//try some db stuff
 				

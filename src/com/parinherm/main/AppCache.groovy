@@ -33,7 +33,8 @@ class AppCache {
 		if(!dir.exists()) {
 			dir.mkdirs()
 		}
-		db = new KernaiDatabase(databaseDir)
+		//not enough benefit to using berkely db at this moment 
+		//db = new KernaiDatabase(databaseDir)
 	}	
 	
 	

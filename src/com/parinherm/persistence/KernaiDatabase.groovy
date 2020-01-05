@@ -1,3 +1,7 @@
+/* trial of using berkely db database instead of something like
+ * h2 or derby or sqlite
+ */
+
 package com.parinherm.persistence
 
 
