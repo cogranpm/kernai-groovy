@@ -241,7 +241,7 @@ class MainWindow extends ApplicationWindow {
 	
 	@Override
 	public boolean close() {
-		//cache.db.close()
+		cache.db.close()
 		return super.close();
 	}
 	

@@ -4,7 +4,8 @@ import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.graphics.Image
 
-import com.parinherm.persistence.KernaiDatabase
+import com.parinherm.persistence.H2Database
+import com.parinherm.persistence.IDatabase
 
 
 class AppCache {
@@ -23,8 +24,8 @@ class AppCache {
 	public final static String IMAGES_PATH = "/images/"
 	
 	public final static String USER_HOME = System.getProperty('user.home')
-	KernaiDatabase db = null
-	
+	//KernaiDatabase db = null
+	public final IDatabase db = null
 	
 	AppCache() {
 		random = new Random()
@@ -35,6 +36,7 @@ class AppCache {
 		}
 		//not enough benefit to using berkely db at this moment 
 		//db = new KernaiDatabase(databaseDir)
+		db = new H2Database(databaseDir)
 	}	
 	
 	

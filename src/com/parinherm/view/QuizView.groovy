@@ -69,15 +69,12 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
 import com.parinherm.domain.Question
+import com.parinherm.main.MainWindow
 import com.parinherm.validators.CompoundValidator
 import com.parinherm.validators.EmptyStringValidator
 
-import groovy.json.JsonGenerator
 import groovy.json.JsonSlurper
 
-//todo remove this
-import groovy.sql.Sql
-import java.util.logging.*
 
 
 class QuizView extends Composite{
@@ -89,20 +86,21 @@ class QuizView extends Composite{
 	//WritableMap wm = new WritableMap()
 	Question model
 
-	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners').build()
+	
 	
 	
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
 	
-		Logger.getLogger('groovy.sql').level = Level.FINE
-			
-		//go from json to a domain entity 
-		String jsonQuestion = '{"id":0, "question": "what is the color of postassium", "category": "general", "answer": "yellow"}'
-		//json comes in raw from the database
-		def questionMap = new JsonSlurper().parseText(jsonQuestion)
-		//domain entity is constructed from the parsed json map
-		model = new Question(questionMap)
+		
+		def list = MainWindow.cache.db.getAll(Question.class.getName())
+		list.forEach({Map item ->
+			def questionMap = new JsonSlurper().parseText(item.get('json'))
+			//until listview introduced just set to last in list
+			model = new Question(questionMap)
+			model.id = item.get('id')
+		})
+
 		value.setValue(model)
 		//domain entity is then bound to the ui controls
 		
@@ -169,40 +167,6 @@ class QuizView extends Composite{
 	}
 	
 	private def persist() {
-		def url = 'jdbc:h2:~/kernaidb'
-		def user = 'sa'
-		def password = ''
-		def driver = 'org.h2.Driver'
-		def sql = Sql.newInstance(url, user, password, driver)
-		def tableddl = """\
-					CREATE TABLE IF NOT EXISTS ENTITYDATA(ID IDENTITY NOT NULL PRIMARY KEY,
-					ENTITYCLASS VARCHAR NOT NULL,
-					DATA JSON NOT NULL);""".stripIndent()
-		sql.execute(tableddl)
-		def clazz = model.getClass().getName()
-		def json = jsonOutputter.toJson(model)
-		
-		def insert = """\
-			INSERT INTO ENTITYDATA (ENTITYCLASS, DATA) VALUES (?, ? FORMAT JSON);
-		""".stripIndent()
-		sql.execute insert, [clazz, json]
-
-		//define a list of questions
-		def list = []
-		Closure rowParser = {row -> 
-			def id = row[0]
-			def clazzName = row[1]
-			def jsonRaw = new String(row[2])
-			def questionMap = new JsonSlurper().parseText(jsonRaw)
-			def question = new Question(questionMap)
-			question.id = id
-			list << question
-		}
-
-		sql.eachRow('SELECT ID, ENTITYCLASS, DATA FORMAT JSON FROM ENTITYDATA', rowParser) 
-		println list
- 
-		
-		sql.close()
+		MainWindow.cache.db.persist(model)
 	}
 }
