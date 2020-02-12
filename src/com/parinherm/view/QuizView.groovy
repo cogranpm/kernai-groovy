@@ -8,13 +8,40 @@
  * no domain class required, no mapping, always the same sql query
  * catch is you can't query fields at database level
  *  
- * 
- * 
-
 https://stackoverflow.com/questions/31560084/jface-databinding-map-property-to-swt-text-field
 Finally found it... map entries can be observed via
 
 IObservableValue o = Observables.observeMapEntry(map, "test")
+ * 
+ * 
+ * 
+ * problem with maps is that haven't figured out how to observe a list of maps
+ * in the tableviewer, to get that nice table updates as edit field is changed
+ * groovy does however allow map based pojo construction, and also a single line 
+ * output pojo to json
+ * 
+ * package com.example.groovy
+import groovy.json.JsonBuilder  
+import groovy.json.JsonSlurper  
+import groovy.transform.ToString
+
+class JsonToObject {
+    public static void main(String[] args) {
+        // Person object
+        def person = new Person(firstName: "John", lastName: "Doe")
+        // Json String
+        def personJSON = new JsonBuilder(person).toPrettyString()
+        // Json String to Map
+        def personMap = new JsonSlurper().parseText(personJSON)
+        // using Map to convert to Person object type
+        def newPerson = new Person(personMap)
+        println(person)
+        println(newPerson)
+        assert newPerson.firstName.equals(person.firstName)
+        assert newPerson.lastName.equals(person.lastName)
+    }
+}
+
  * 
  * 
  */

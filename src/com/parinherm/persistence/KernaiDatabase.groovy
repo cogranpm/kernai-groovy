@@ -43,7 +43,7 @@ class KernaiDatabase {
 	void close() {
 		try {
 			javaCatalog?.close()
-			env.close()
+			env?.close()
 		} catch (Exception e) {
 			println e
 		}
