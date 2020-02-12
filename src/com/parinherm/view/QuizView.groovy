@@ -75,6 +75,10 @@ import com.parinherm.validators.EmptyStringValidator
 import groovy.json.JsonGenerator
 import groovy.json.JsonSlurper
 
+//todo remove this
+import groovy.sql.Sql
+import java.util.logging.*
+
 
 class QuizView extends Composite{
 	//def props = [id:0, questionText:'', answerText:'']
@@ -84,10 +88,15 @@ class QuizView extends Composite{
 	WritableValue value = new WritableValue()
 	//WritableMap wm = new WritableMap()
 	Question model
+
+	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners').build()
+	
 	
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
-		
+	
+		Logger.getLogger('groovy.sql').level = Level.FINE
+			
 		//go from json to a domain entity 
 		String jsonQuestion = '{"id":0, "question": "what is the color of postassium", "category": "general", "answer": "yellow"}'
 		//json comes in raw from the database
@@ -109,11 +118,7 @@ class QuizView extends Composite{
 		Button btnDo = new Button(this, SWT.PUSH)
 		btnDo.text = "Save"
 		btnDo.addSelectionListener(widgetSelectedAdapter{
-			//println toJson(wm)
-			//dump domain entity to json and write to database
-			//set up the options to remove the listeners field in the domain entity
-			def jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners').build()
-			println jsonOutputter.toJson(model)
+			persist()
 		}) 
 		
 		/*
@@ -161,5 +166,43 @@ class QuizView extends Composite{
 		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
 		def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null);
 
+	}
+	
+	private def persist() {
+		def url = 'jdbc:h2:~/kernaidb'
+		def user = 'sa'
+		def password = ''
+		def driver = 'org.h2.Driver'
+		def sql = Sql.newInstance(url, user, password, driver)
+		def tableddl = """\
+					CREATE TABLE IF NOT EXISTS ENTITYDATA(ID IDENTITY NOT NULL PRIMARY KEY,
+					ENTITYCLASS VARCHAR NOT NULL,
+					DATA JSON NOT NULL);""".stripIndent()
+		sql.execute(tableddl)
+		def clazz = model.getClass().getName()
+		def json = jsonOutputter.toJson(model)
+		
+		def insert = """\
+			INSERT INTO ENTITYDATA (ENTITYCLASS, DATA) VALUES (?, ? FORMAT JSON);
+		""".stripIndent()
+		sql.execute insert, [clazz, json]
+
+		//define a list of questions
+		def list = []
+		Closure rowParser = {row -> 
+			def id = row[0]
+			def clazzName = row[1]
+			def jsonRaw = new String(row[2])
+			def questionMap = new JsonSlurper().parseText(jsonRaw)
+			def question = new Question(questionMap)
+			question.id = id
+			list << question
+		}
+
+		sql.eachRow('SELECT ID, ENTITYCLASS, DATA FORMAT JSON FROM ENTITYDATA', rowParser) 
+		println list
+ 
+		
+		sql.close()
 	}
 }
