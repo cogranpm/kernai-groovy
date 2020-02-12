@@ -17,5 +17,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jsyntaxpane"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/eclipse-app"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/eclipse-nebula"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/berkeleydb-je"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
