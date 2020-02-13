@@ -84,7 +84,7 @@ class QuizView extends Composite{
 	Label lblError
 	WritableValue value = new WritableValue()
 	//WritableMap wm = new WritableMap()
-	Question model
+	Question model = new Question()
 
 	Closure<Question> mapFromJson = {Map rowMap ->
 		def questionMap = new JsonSlurper().parseText(rowMap.get('json'))
