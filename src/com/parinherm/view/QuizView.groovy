@@ -168,5 +168,6 @@ class QuizView extends Composite{
 	
 	private def persist() {
 		MainWindow.cache.db.persist(model)
+		println model.id
 	}
 }

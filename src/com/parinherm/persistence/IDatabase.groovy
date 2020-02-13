@@ -1,12 +1,12 @@
 package com.parinherm.persistence
 
 //todo remove this
-import groovy.sql.Sql
+import com.parinherm.domain.IEntity
 
 
 
 interface IDatabase {
-	def persist(def model)
+	def persist(IEntity model)
 	List getAll(String className)
 	def close()
 }

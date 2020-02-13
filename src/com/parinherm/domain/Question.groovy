@@ -5,8 +5,8 @@ import groovy.transform.Canonical
 
 @Canonical
 @Bindable
-class Question {
-	Long id
+class Question implements IEntity {
+	BigInteger id
 	String question
 	String category
 	String answer
