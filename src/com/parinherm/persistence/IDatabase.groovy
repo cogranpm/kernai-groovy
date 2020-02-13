@@ -8,5 +8,6 @@ import com.parinherm.domain.IEntity
 interface IDatabase {
 	def persist(IEntity model)
 	List getAll(String className)
+	def get(BigInteger id)
 	def close()
 }

@@ -12,6 +12,8 @@ class H2Database implements IDatabase {
 	Logger logger = Logger.getLogger('groovy.sql')
 	Sql db
 	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners').build()
+	
+	
 
 	H2Database(String dir){
 		
@@ -52,6 +54,13 @@ class H2Database implements IDatabase {
 		def keys = db.executeInsert insert, [clazz, json]
 		model.id = keys[0][0]
 
+	}
+	
+	def get(BigInteger id) {
+		def select = 'SELECT ID, ENTITYCLASS, DATA FORMAT JSON FROM ENTITYDATA WHERE ID = :id'
+		def row = db.firstRow(select, [id: id])
+		def map = [json: new String(row[2]), id: id]
+		map
 	}
 
 

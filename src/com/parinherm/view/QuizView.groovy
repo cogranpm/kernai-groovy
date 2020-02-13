@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
 import com.parinherm.domain.Question
-import com.parinherm.main.MainWindow
+import static com.parinherm.main.MainWindow.cache
 import com.parinherm.validators.CompoundValidator
 import com.parinherm.validators.EmptyStringValidator
 
@@ -86,19 +86,21 @@ class QuizView extends Composite{
 	//WritableMap wm = new WritableMap()
 	Question model
 
-	
+	Closure<Question> mapFromJson = {Map rowMap ->
+		def questionMap = new JsonSlurper().parseText(rowMap.get('json'))
+		Question question = new Question(questionMap)
+		question.id = rowMap.get('id')
+		question
+	}
 	
 	
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
 	
 		
-		def list = MainWindow.cache.db.getAll(Question.class.getName())
+		def list = cache.db.getAll(Question.class.getName())
 		list.forEach({Map item ->
-			def questionMap = new JsonSlurper().parseText(item.get('json'))
-			//until listview introduced just set to last in list
-			model = new Question(questionMap)
-			model.id = item.get('id')
+			model = mapFromJson.call(item)
 		})
 
 		value.setValue(model)
@@ -167,7 +169,12 @@ class QuizView extends Composite{
 	}
 	
 	private def persist() {
-		MainWindow.cache.db.persist(model)
-		println model.id
+		cache.db.persist(model)
+		//test loading the persisted value
+		Map result = cache.db.get(model.id)
+		
+		
+		Question loadedQuestion = mapFromJson(result)
+		println loadedQuestion.question
 	}
 }
