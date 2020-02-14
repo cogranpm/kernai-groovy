@@ -63,7 +63,7 @@ class H2Database implements IDatabase {
 	
 	private def update(json, IEntity model) {
 		def update = """\
-			UPDATE $table SET $data_field = ? WHERE $id_field = ?;
+			UPDATE $table SET $data_field  = ? $json_format WHERE $id_field = ?;
 			""".stripIndent()
 			def count = db.executeUpdate update, [json, model.id]
 	}

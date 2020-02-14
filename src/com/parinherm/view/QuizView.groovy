@@ -80,7 +80,8 @@ import groovy.json.JsonSlurper
 class QuizView extends Composite{
 	//def props = [id:0, questionText:'', answerText:'']
 	DataBindingContext dbc = new DataBindingContext()
-	Text txtId
+	Text txtQuestion
+	Text txtAnswer
 	Label lblError
 	WritableValue value = new WritableValue()
 	//WritableMap wm = new WritableMap()
@@ -100,6 +101,7 @@ class QuizView extends Composite{
 	
 		//list of questions
 		def list = cache.db.getAll(Question.class.getName(), mapFromData)
+		model = list.first()
 		//list.each { println it.id }
 
 		value.setValue(model)
@@ -112,7 +114,11 @@ class QuizView extends Composite{
 		lblError = new Label(this, SWT.NONE)
 		Label lblId = new Label(this, SWT.NONE)
 		lblId.text = "Question"
-		txtId = new Text(this, SWT.NONE)
+		txtQuestion = new Text(this, SWT.NONE)
+		
+		Label lblAnswer = new Label(this, SWT.NONE)
+		lblAnswer.text = "Answer"
+		txtAnswer = new Text(this, SWT.NONE)
 		
 		Button btnDo = new Button(this, SWT.PUSH)
 		btnDo.text = "Save"
@@ -129,7 +135,9 @@ class QuizView extends Composite{
 		
 		GridDataFactory.fillDefaults().span(2, 1).applyTo(lblError)
 		GridDataFactory.fillDefaults().applyTo(lblId)
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtId)
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtQuestion)
+		GridDataFactory.fillDefaults().applyTo(lblAnswer)
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAnswer)
 		GridDataFactory.fillDefaults().applyTo(btnDo)
 		this.setLayout(new GridLayout(2, false))
 	}
@@ -141,9 +149,12 @@ class QuizView extends Composite{
 			def b = element as Binding
 			dbc.removeBinding(b)
 		}
-		final IObservableValue controlObservable = WidgetProperties.text(SWT.Modify).observe(txtId)
-		final IObservableValue modelObservable = BeanProperties.value("question").observeDetail(value)
-		
+		final IObservableValue co_question = WidgetProperties.text(SWT.Modify).observe(txtQuestion)
+		final IObservableValue mo_question = BeanProperties.value("question").observeDetail(value)
+
+		final IObservableValue co_answer = WidgetProperties.text(SWT.Modify).observe(txtAnswer)
+		final IObservableValue mo_answer = BeanProperties.value("answer").observeDetail(value)
+
 		
 		// create a validators library
 		//create a validation class for each unique validation
@@ -158,8 +169,9 @@ class QuizView extends Composite{
 			afterConvertValidator = new CompoundValidator(new EmptyStringValidator("Question"))
 		}
   
-		def binding = dbc.bindValue(controlObservable, modelObservable, updateStrategy, null)
-		def errorDecorator = ControlDecorationSupport.create(binding, SWT.TOP | SWT.LEFT)
+		def binding_question = dbc.bindValue(co_question, mo_question, updateStrategy, null)
+		def binding_answer = dbc.bindValue(co_answer, mo_answer, null, null)
+		def errorDecorator = ControlDecorationSupport.create(binding_question, SWT.TOP | SWT.LEFT)
 		
 		// error label binding
 		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
