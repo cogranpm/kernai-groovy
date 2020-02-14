@@ -50,9 +50,9 @@ class JsonToObject {
 package com.parinherm.view
 
 import static com.parinherm.main.MainWindow.cache
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 
 import org.eclipse.core.databinding.AggregateValidationStatus
+import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.beans.typed.BeanProperties
@@ -64,20 +64,19 @@ import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.observable.value.WritableValue
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
-import org.eclipse.jface.layout.GridDataFactory
-import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.databinding.viewers.ViewerProperties
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
-import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
@@ -87,7 +86,6 @@ import org.eclipse.swt.widgets.Text
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.Question
 import com.parinherm.ui.controls.ControlsFactory
-import com.parinherm.ui.controls.TableViewerColumnHelper
 import com.parinherm.validators.CompoundValidator
 import com.parinherm.validators.EmptyStringValidator
 
@@ -106,8 +104,10 @@ class QuizView extends Composite{
 	WritableValue value = new WritableValue()
 	WritableList wl 
 	ObservableListContentProvider contentProvider = new ObservableListContentProvider()
-	Boolean selectionChangeFlag = false
-	Boolean dirtyFlag = false
+	Boolean pauseDirtyListener = false
+	Button btnSave
+	Button btnNew
+	Button btnDelete
 	
 	//WritableMap wm = new WritableMap()
 	
@@ -127,17 +127,24 @@ class QuizView extends Composite{
 	
 	
 	//handler that listens for databinding change events
+	IChangeListener listener = {
+		if(!pauseDirtyListener) {
+			model.dirtyFlag = true
+		}
+	}
+	/*
 	IChangeListener listener = new IChangeListener() {
 		@Override
 		public void handleChange(ChangeEvent event) {
-			/* selectionChange flag is set on the list selection event handler,
+			* selectionChange flag is set on the list selection event handler,
 			 * which fires before this databinding handler fires
-			 * allows view to ignore list selection changes when setting the dirty flag */
-			if(!selectionChangeFlag) {
+			 * allows view to ignore list selection changes when setting the dirty flag *
+			if(!pauseDirtyListener) {
 				dirtyFlag = true
 			}
 		}
 	}
+	*/
 
 	
 	
@@ -159,13 +166,13 @@ class QuizView extends Composite{
 		/* list */
 		
 		Closure listSelectionHandler = {
-			selectionChangeFlag = true
 			IStructuredSelection selection = listView.getStructuredSelection()
-			model = selection.firstElement as Question
-			addBindings()
+			updateUserInterface(Optional.ofNullable(selection.firstElement as Question))
+			
 		}
 		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, "Question", "Answer") 
 		
+		def title = ControlsFactory.title(editComposite, "Questions")
 		lblError = ControlsFactory.errorLabel(editComposite)
 		Label lblQuestion = ControlsFactory.label(editComposite, "Question")
 		txtQuestion = ControlsFactory.text(editComposite, true)
@@ -174,18 +181,19 @@ class QuizView extends Composite{
 		txtAnswer = ControlsFactory.text(editComposite, true)
 		
 		
-		Button btnSave = ControlsFactory.button(buttonsBar, "&Save"){persist()}
-		Button btnNew = ControlsFactory.button(buttonsBar, "&New"){
-			model = new Question(id: 0)
-			value.setValue(model)
+		btnSave = ControlsFactory.button(buttonsBar, "&Save"){persist()}
+		btnSave.enabled = false
+		
+		btnNew = ControlsFactory.button(buttonsBar, "&New"){
+			Question newModel = new Question(id: 0, dirtyFlag: true, newFlag: true)
+			updateUserInterface(Optional.ofNullable(newModel))
 		}
 		
-		Button btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
+		btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
 			model = null
-			value.setValue(model)
+			updateUserInterface(Optional.ofNullable(model))
 		}
-		
-		
+		btnDelete.enabled = false
 		
 		/*
 		IObservableValue target =  WidgetProperties.text(SWT.Modify).observe(txtId)
@@ -197,6 +205,7 @@ class QuizView extends Composite{
 		sashForm.setWeights([1, 3] as int[])
 		setLayout(new FillLayout())
 		addListBindings()
+		updateUserInterface(Optional.ofNullable(model))
 	}
 	
 	private def addListBindings() {
@@ -268,13 +277,69 @@ class QuizView extends Composite{
 		
 		// error label binding
 		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
-		def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null);
+		def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null)
+		
+		IObservableList bindings = dbc.getValidationStatusProviders()
+		bindings.each { element ->
+			Binding b = element as Binding
+			b.target.addChangeListener(listener)
+		}
+		
+		
+		IObservableValue save = WidgetProperties.enabled().observe(btnSave)
+		IObservableValue mdirty= BeanProperties.value("dirtyFlag").observe(model)
+		def dirtyBinding = dbc.bindValue(save, mdirty)
+		
+
+		//delete button binding
+		IObservableValue deleteItemTarget = WidgetProperties.enabled().observe(btnDelete)
+		UpdateValueStrategy convertSelectedToBoolean = new UpdateValueStrategy(){
+			@Override
+			protected IStatus doSet(IObservableValue observableValue, Object value)
+			{
+				return super.doSet(observableValue, value == null ? Boolean.FALSE : Boolean.TRUE)
+			}
+		}
+		
+		IViewerObservableValue selectedEntity = ViewerProperties.singleSelection().observe(listView)
+		//a binding that sets delete toolitem to disabled based on whether item in list is selected
+		Binding deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity,  new UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), convertSelectedToBoolean)
+		//a listener on above binding that makes sure action enabled is set set toolitem changes, ie can't databind the enbabled of an action
+		deleteBinding.getTarget().addChangeListener(new IChangeListener() {
+			@Override
+			public void handleChange(ChangeEvent event) {
+				//deleteAction.setEnabled(deleteToolItem.getEnabled())
+			}
+		})
+
+	}
+	
+	private def enableUserInterface(Boolean enable) {
+		txtAnswer.enabled = enable
+		txtQuestion.enabled = enable	
+		
+	}
+	
+	private def updateUserInterface(Optional<Question> entity) {
+		if (entity.isPresent()) {
+			enableUserInterface(true)
+		}
+		else
+		{
+			enableUserInterface(false)
+			return
+		}
+		pauseDirtyListener = true
+		model = entity.get()
+		addBindings()
 		value.setValue(model)
+		pauseDirtyListener = false
 	}
 	
 	private def persist() {
 		cache.db.persist(model)
 		//test loading the persisted value
 		Question loadedQuestion = cache.db.get(model.id, mapFromData)
+		println "saved: $loadedQuestion"
 	}
 }

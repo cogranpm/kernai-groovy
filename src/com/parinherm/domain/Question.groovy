@@ -10,4 +10,6 @@ class Question implements IEntity {
 	String question
 	String category
 	String answer
+	Boolean dirtyFlag
+	Boolean newFlag
 }

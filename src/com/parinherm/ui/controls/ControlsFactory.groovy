@@ -38,13 +38,15 @@ class ControlsFactory {
 	
 	static Composite editContainer(Composite parent) {
 		Composite composite = new Composite(parent, SWT.BORDER)
-		composite.setLayout(new FillLayout(SWT.VERTICAL))
+		//composite.setLayout(new FillLayout(SWT.VERTICAL))
+		composite.setLayout(new GridLayout(1, true))
 		composite
 	}
 	
 	static Composite editForm(Composite parent) {
 		Composite composite = new Composite(parent, SWT.BORDER)
 		composite.setLayout(new GridLayout(2, false))
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(composite)
 		composite
 	}
 	
@@ -69,7 +71,16 @@ class ControlsFactory {
 		label
 		
 	}
-	
+
+	static Label title(Composite parent, String text) {
+		Label label = new Label(parent, SWT.NONE)
+		label.text = text
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false)applyTo(label)
+		label
+		
+	}
+
+		
 	static Label errorLabel(Composite parent) {
 		Label label = new Label(parent, SWT.NONE)
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(label)

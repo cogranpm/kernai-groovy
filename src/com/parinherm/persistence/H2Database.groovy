@@ -11,7 +11,7 @@ class H2Database implements IDatabase {
 	
 	Logger logger = Logger.getLogger('groovy.sql')
 	Sql db
-	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners').build()
+	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag').build()
 	private final String table = 'ENTITYDATA'
 	private final String id_field = 'ID'
 	private final String entityclass_field = 'ENTITYCLASS'
@@ -51,13 +51,14 @@ class H2Database implements IDatabase {
 	def persist(IEntity model) {
 		
 		def json = jsonOutputter.toJson(model)
-		
-		if (model.id > 0) {
+		if (!model.newFlag) {
 			update(json, model)
 		}
 		else {
 			insert(json, model)
 		}
+		model.dirtyFlag = false
+		model.newFlag = false
 
 	}
 	
@@ -65,7 +66,7 @@ class H2Database implements IDatabase {
 		def update = """\
 			UPDATE $table SET $data_field  = ? $json_format WHERE $id_field = ?;
 			""".stripIndent()
-			def count = db.executeUpdate update, [json, model.id]
+		def count = db.executeUpdate update, [json, model.id]
 	}
 	
 	private def insert(json, IEntity model) {
