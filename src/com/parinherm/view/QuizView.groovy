@@ -166,34 +166,11 @@ class QuizView extends Composite{
 		}
 		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, "Question", "Answer") 
 		
-		/*
-		listView = new TableViewer(listComposite, SWT.NONE)
-		listTable = listView.getTable()
-		listTable.setHeaderVisible(true)
-		listTable.setLinesVisible(true)
-		TableColumnLayout tableLayout = new TableColumnLayout()
-		listComposite.setLayout(tableLayout)
-		
-		TableViewerColumn stringTestColumn = TableViewerColumnHelper.getColumn("Question", listView, tableLayout)
-		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Answer", listView, tableLayout)
-		listView.setContentProvider(contentProvider)
-		
-		listView.addSelectionChangedListener{				
-			selectionChangeFlag = true
-			IStructuredSelection selection = listView.getStructuredSelection()
-			model = selection.firstElement as Question
-			addBindings()
-		} 
-		*/
-		
-		
-		lblError = new Label(editComposite, SWT.NONE)
-		Label lblId = new Label(editComposite, SWT.NONE)
-		lblId.text = "Question"
+		lblError = ControlsFactory.errorLabel(editComposite)
+		Label lblQuestion = ControlsFactory.label(editComposite, "Question")
 		txtQuestion = new Text(editComposite, SWT.NONE)
 		
-		Label lblAnswer = new Label(editComposite, SWT.NONE)
-		lblAnswer.text = "Answer"
+		Label lblAnswer = ControlsFactory.label(editComposite, "Answer")
 		txtAnswer = new Text(editComposite, SWT.NONE)
 		
 		
@@ -218,9 +195,7 @@ class QuizView extends Composite{
 		//addBindings()
 		
 		GridDataFactory.fillDefaults().span(2, 1).applyTo(lblError)
-		GridDataFactory.fillDefaults().applyTo(lblId)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtQuestion)
-		GridDataFactory.fillDefaults().applyTo(lblAnswer)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAnswer)
 
 		

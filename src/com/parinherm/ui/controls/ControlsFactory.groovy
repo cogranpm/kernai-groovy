@@ -3,18 +3,16 @@ package com.parinherm.ui.controls
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
-import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
-
-import com.parinherm.domain.Question
+import org.eclipse.swt.widgets.Label
 
 class ControlsFactory {
 	
@@ -63,5 +61,18 @@ class ControlsFactory {
 		listView
 	}
 	
+	static Label label(Composite parent, String text) {
+		Label label = new Label(parent, SWT.NONE)
+		label.text = text
+		GridDataFactory.fillDefaults().applyTo(label)
+		label
+		
+	}
+	
+	static Label errorLabel(Composite parent) {
+		Label label = new Label(parent, SWT.NONE)
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(label)
+		label
+	}
 
 }

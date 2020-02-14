@@ -47,6 +47,7 @@ import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.DateTime
+import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Spinner
 import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
@@ -55,7 +56,7 @@ import com.parinherm.domain.DataTypesList
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.ListItemDetail
 import com.parinherm.ui.controls.DateTimeSelectionProperty
-import com.parinherm.ui.controls.Label
+import com.parinherm.ui.controls.ControlsFactory
 import com.parinherm.ui.controls.TableViewerColumnHelper
 import com.parinherm.view.model.DatabindingViewModel
 
@@ -159,16 +160,16 @@ class DataBindingView extends Composite {
 			}
 		})
 		
-		lblStringTest = new Label(editComposite, "String Test:")
+		lblStringTest = ControlsFactory.label(editComposite, "String Test:")
 		txtStringTest = new Text(editComposite, SWT.NONE)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtStringTest)
 		
-		lblIntTest = new Label(editComposite, "Int Test:")
+		lblIntTest = ControlsFactory.label(editComposite, "Int Test:")
 		spinIntTest = new Spinner(editComposite, SWT.NONE)
 		spinIntTest.setMinimum(Integer.MIN_VALUE)
 		spinIntTest.setMaximum(Integer.MAX_VALUE)
 		
-		lblComboTest = new Label(editComposite, "Combo Test:")
+		lblComboTest = ControlsFactory.label(editComposite, "Combo Test:")
 		cboComboTest = new ComboViewer(editComposite)
 		cboComboTest.setContentProvider(ArrayContentProvider.getInstance())
 		cboComboTest.setLabelProvider(new LabelProvider() {
@@ -182,19 +183,17 @@ class DataBindingView extends Composite {
 		cboComboTest.input = DataTypesList.items
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(cboComboTest.combo)
 		
-		lblCreatedDate = new Label(editComposite, "Date Created")
+		lblCreatedDate = ControlsFactory.label(editComposite, "Date Created")
 		dteCreatedDate = new DateTime(editComposite, SWT.DROP_DOWN | SWT.DATE)
 		
-		lblCreatedTime = new Label(editComposite, "Time Created")
+		lblCreatedTime = ControlsFactory.label(editComposite, "Time Created")
 		dteCreatedTime = new DateTime(editComposite, SWT.DROP_DOWN | SWT.TIME)
 		
-		lblBoolTest = new Label(editComposite, "Bool Test")
+		lblBoolTest = ControlsFactory.label(editComposite, "Bool Test")
 		btnBoolTest = new Button(editComposite, SWT.CHECK)
 		
-		/* error label */
-		lblError = new Label(editComposite, "Errors")
-		//lblError.setText("Errors")
-		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(lblError.peer)
+
+		lblError = ControlsFactory.errorLabel(editComposite)
 		
 		Button btnTest = new Button(editComposite, SWT.PUSH)
 		btnTest.text = "Update"
@@ -366,7 +365,7 @@ class DataBindingView extends Composite {
 		ControlDecorationSupport.create(detailBinding, SWT.TOP | SWT.LEFT)
 		
 		// error label binding
-		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError.peer)
+		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
 		def allValidationBinding = ctx.bindValue(errorObservable, new AggregateValidationStatus(ctx.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null);
 
 
