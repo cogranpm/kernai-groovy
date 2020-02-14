@@ -69,7 +69,7 @@ import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
-import org.eclipse.jface.databinding.viewers.ViewerProperties
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
