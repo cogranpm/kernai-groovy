@@ -3,6 +3,7 @@ package com.parinherm.ui.controls
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.TableViewer
@@ -12,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
@@ -91,6 +93,11 @@ class ControlsFactory {
 		Text text = new Text(parent, SWT.NONE)
 		GridDataFactory.fillDefaults().grab(fill, false).applyTo(text)
 		text
+	}
+	
+	static Boolean runConfirm(String title, String prompt) {
+		Boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(), title, prompt)
+		confirm
 	}
 
 }

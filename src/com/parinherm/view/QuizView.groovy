@@ -70,6 +70,7 @@ import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
+import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
@@ -81,6 +82,7 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
+import org.eclipse.swt.widgets.Display
 
 import com.parinherm.converters.BooleanNullConverter
 import com.parinherm.domain.DomainTest
@@ -187,9 +189,15 @@ class QuizView extends Composite{
 		btnNew = ControlsFactory.button(buttonsBar, "&New"){
 			Question newModel = new Question(id: 0, dirtyFlag: true, newFlag: true)
 			updateUserInterface(Optional.ofNullable(newModel))
+			wl.add(newModel)
 		}
 		
 		btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
+			def confirm = ControlsFactory.runConfirm("Delete Question", "Delete Question, are you sure?")
+			if (!confirm) { return}
+			cache.db.delete(model)
+			wl.remove(model)
+			value.setValue(null)
 			model = null
 			updateUserInterface(Optional.ofNullable(model))
 		}
@@ -213,8 +221,7 @@ class QuizView extends Composite{
 		def col_question = BeanProperties.value(Question.class, "question").observeDetail(knownElements)
 		def col_answer = BeanProperties.value(Question.class, "answer").observeDetail(knownElements)
 		
-		
-		IObservableMap[] labelMaps = [col_question] as IObservableMap[]
+		IObservableMap[] labelMaps = [col_question, col_answer] as IObservableMap[]
 		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
 					@Override
 					public String getColumnText(Object element, int columnIndex) {
@@ -231,15 +238,11 @@ class QuizView extends Composite{
 						}
 					}
 				}
-		listView.setLabelProvider(labelProvider)
-		//list of questions
-		def list = cache.db.getAll(Question.class.getName(), mapFromData)
-		//model = list.first()
-		//list.each { println it.id }
 
+		listView.setLabelProvider(labelProvider)
+		def list = cache.db.getAll(Question.class.getName(), mapFromData)
 		wl = new WritableList(list, Question.class)
 		listView.setInput(wl)
-		
 
 	}
 	

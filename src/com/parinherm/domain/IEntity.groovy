@@ -1,7 +1,7 @@
 package com.parinherm.domain
 
-interface IEntity {
-	//BigInteger id
-	//Boolean dirtyFlag
-	//Boolean newFlag
+trait IEntity {
+	BigInteger id
+	Boolean dirtyFlag
+	Boolean newFlag
 }

@@ -48,6 +48,13 @@ class H2Database implements IDatabase {
 		db.execute(tableddl)
 	}
 	
+	def delete(IEntity model) {
+		String delete = """\
+		DELETE FROM $table WHERE $id_field = ?;
+		""".stripIndent()
+		db.execute(delete, [model.id])
+	}
+	
 	def persist(IEntity model) {
 		
 		def json = jsonOutputter.toJson(model)

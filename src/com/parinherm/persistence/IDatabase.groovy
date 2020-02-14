@@ -7,6 +7,7 @@ import com.parinherm.domain.IEntity
 
 interface IDatabase {
 	def persist(IEntity model)
+	def delete(IEntity model)
 	List getAll(String className, Closure mapper)
 	def get(BigInteger id, Closure mapper)
 	def close()
