@@ -64,7 +64,6 @@ import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.observable.value.WritableValue
-import org.eclipse.core.runtime.IStatus
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue
@@ -83,6 +82,7 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
 
+import com.parinherm.converters.BooleanNullConverter
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.Question
 import com.parinherm.ui.controls.ControlsFactory
@@ -293,17 +293,10 @@ class QuizView extends Composite{
 
 		//delete button binding
 		IObservableValue deleteItemTarget = WidgetProperties.enabled().observe(btnDelete)
-		UpdateValueStrategy convertSelectedToBoolean = new UpdateValueStrategy(){
-			@Override
-			protected IStatus doSet(IObservableValue observableValue, Object value)
-			{
-				return super.doSet(observableValue, value == null ? Boolean.FALSE : Boolean.TRUE)
-			}
-		}
 		
 		IViewerObservableValue selectedEntity = ViewerProperties.singleSelection().observe(listView)
 		//a binding that sets delete toolitem to disabled based on whether item in list is selected
-		Binding deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity,  new UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), convertSelectedToBoolean)
+		Binding deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity,  new UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), new BooleanNullConverter())
 		//a listener on above binding that makes sure action enabled is set set toolitem changes, ie can't databind the enbabled of an action
 		deleteBinding.getTarget().addChangeListener(new IChangeListener() {
 			@Override
