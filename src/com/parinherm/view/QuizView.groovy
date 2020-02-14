@@ -49,27 +49,45 @@ class JsonToObject {
 
 package com.parinherm.view
 
+import static com.parinherm.main.MainWindow.cache
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.observable.ChangeEvent
+import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.IObservableList
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.core.databinding.observable.map.IObservableMap
+import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.observable.value.WritableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.layout.GridDataFactory
+import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.viewers.ILabelProvider
+import org.eclipse.jface.viewers.IStructuredSelection
+import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
+import org.eclipse.swt.widgets.Table
 import org.eclipse.swt.widgets.Text
 
+import com.parinherm.domain.DomainTest
 import com.parinherm.domain.Question
-import static com.parinherm.main.MainWindow.cache
+import com.parinherm.ui.controls.ControlsFactory
+import com.parinherm.ui.controls.TableViewerColumnHelper
 import com.parinherm.validators.CompoundValidator
 import com.parinherm.validators.EmptyStringValidator
 
@@ -80,12 +98,22 @@ import groovy.json.JsonSlurper
 class QuizView extends Composite{
 	//def props = [id:0, questionText:'', answerText:'']
 	DataBindingContext dbc = new DataBindingContext()
+	TableViewer listView
+	Table listTable 
 	Text txtQuestion
 	Text txtAnswer
 	Label lblError
 	WritableValue value = new WritableValue()
+	WritableList wl 
+	ObservableListContentProvider contentProvider = new ObservableListContentProvider()
+	Boolean selectionChangeFlag = false
+	Boolean dirtyFlag = false
+	
 	//WritableMap wm = new WritableMap()
-	Question model = new Question(id:0, question:'something', category:'testing', answer:'no answer yet')
+	
+	
+	//Question model = new Question(id:0, question:'something', category:'testing', answer:'no answer yet')
+	Question model
 
 
 	Closure<Question> mapFromData = { String jsonData, BigInteger id ->
@@ -95,52 +123,148 @@ class QuizView extends Composite{
 		question
 	}
 	
+	DomainTest selectedItem = null
+	
+	
+	//handler that listens for databinding change events
+	IChangeListener listener = new IChangeListener() {
+		@Override
+		public void handleChange(ChangeEvent event) {
+			/* selectionChange flag is set on the list selection event handler,
+			 * which fires before this databinding handler fires
+			 * allows view to ignore list selection changes when setting the dirty flag */
+			if(!selectionChangeFlag) {
+				dirtyFlag = true
+			}
+		}
+	}
+
+	
 	
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
-	
-		//list of questions
-		def list = cache.db.getAll(Question.class.getName(), mapFromData)
-		model = list.first()
-		//list.each { println it.id }
 
-		value.setValue(model)
 		//domain entity is then bound to the ui controls
 		
 		//this is map based stuff
 		//wm.putAll(questionMap)
 		//value.setValue(wm)
+		def sashForm = new SashForm(this, SWT.HORIZONTAL)
 		
-		lblError = new Label(this, SWT.NONE)
-		Label lblId = new Label(this, SWT.NONE)
+		def listComposite = ControlsFactory.listContainer(sashForm)
+		def mainComposite = ControlsFactory.editContainer(sashForm)
+		def buttonsBar = ControlsFactory.toolbar(mainComposite)
+		def editComposite = ControlsFactory.editForm(mainComposite)
+		
+		/* list */
+		
+		Closure listSelectionHandler = {
+			selectionChangeFlag = true
+			IStructuredSelection selection = listView.getStructuredSelection()
+			model = selection.firstElement as Question
+			addBindings()
+		}
+		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, "Question", "Answer") 
+		
+		/*
+		listView = new TableViewer(listComposite, SWT.NONE)
+		listTable = listView.getTable()
+		listTable.setHeaderVisible(true)
+		listTable.setLinesVisible(true)
+		TableColumnLayout tableLayout = new TableColumnLayout()
+		listComposite.setLayout(tableLayout)
+		
+		TableViewerColumn stringTestColumn = TableViewerColumnHelper.getColumn("Question", listView, tableLayout)
+		TableViewerColumn intTestColumn = TableViewerColumnHelper.getColumn("Answer", listView, tableLayout)
+		listView.setContentProvider(contentProvider)
+		
+		listView.addSelectionChangedListener{				
+			selectionChangeFlag = true
+			IStructuredSelection selection = listView.getStructuredSelection()
+			model = selection.firstElement as Question
+			addBindings()
+		} 
+		*/
+		
+		
+		lblError = new Label(editComposite, SWT.NONE)
+		Label lblId = new Label(editComposite, SWT.NONE)
 		lblId.text = "Question"
-		txtQuestion = new Text(this, SWT.NONE)
+		txtQuestion = new Text(editComposite, SWT.NONE)
 		
-		Label lblAnswer = new Label(this, SWT.NONE)
+		Label lblAnswer = new Label(editComposite, SWT.NONE)
 		lblAnswer.text = "Answer"
-		txtAnswer = new Text(this, SWT.NONE)
+		txtAnswer = new Text(editComposite, SWT.NONE)
 		
-		Button btnDo = new Button(this, SWT.PUSH)
-		btnDo.text = "Save"
-		btnDo.addSelectionListener(widgetSelectedAdapter{
-			persist()
-		}) 
+		
+		Button btnSave = ControlsFactory.button(buttonsBar, "&Save"){persist()}
+		Button btnNew = ControlsFactory.button(buttonsBar, "&New"){
+			model = new Question(id: 0)
+			value.setValue(model)
+		}
+		
+		Button btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
+			model = null
+			value.setValue(model)
+		}
+		
+		
 		
 		/*
 		IObservableValue target =  WidgetProperties.text(SWT.Modify).observe(txtId)
 		IObservableValue model = Observables.observeMapEntry(wm, "question")
 		dbc.bindValue(target, model)
 		*/
-		addBindings()
+		//addBindings()
 		
 		GridDataFactory.fillDefaults().span(2, 1).applyTo(lblError)
 		GridDataFactory.fillDefaults().applyTo(lblId)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtQuestion)
 		GridDataFactory.fillDefaults().applyTo(lblAnswer)
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAnswer)
-		GridDataFactory.fillDefaults().applyTo(btnDo)
-		this.setLayout(new GridLayout(2, false))
+
+		
+		sashForm.setWeights([1, 3] as int[])
+		
+		setLayout(new FillLayout())
+		addListBindings()
 	}
+	
+	private def addListBindings() {
+		IObservableSet<DomainTest> knownElements = contentProvider.getKnownElements()
+		def col_question = BeanProperties.value(Question.class, "question").observeDetail(knownElements)
+		def col_answer = BeanProperties.value(Question.class, "answer").observeDetail(knownElements)
+		
+		
+		IObservableMap[] labelMaps = [col_question] as IObservableMap[]
+		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
+					@Override
+					public String getColumnText(Object element, int columnIndex) {
+						def mc = element as Question
+						switch (columnIndex) {
+							case 0:
+								return mc.question
+								break
+							case 1:
+								return mc.answer
+								break
+							default:
+								return ""
+						}
+					}
+				}
+		listView.setLabelProvider(labelProvider)
+		//list of questions
+		def list = cache.db.getAll(Question.class.getName(), mapFromData)
+		//model = list.first()
+		//list.each { println it.id }
+
+		wl = new WritableList(list, Question.class)
+		listView.setInput(wl)
+		
+
+	}
+	
 	
 	private def addBindings() {
 		dbc.dispose()
@@ -176,7 +300,7 @@ class QuizView extends Composite{
 		// error label binding
 		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
 		def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null);
-
+		value.setValue(model)
 	}
 	
 	private def persist() {
