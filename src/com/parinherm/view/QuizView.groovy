@@ -84,12 +84,13 @@ class QuizView extends Composite{
 	Label lblError
 	WritableValue value = new WritableValue()
 	//WritableMap wm = new WritableMap()
-	Question model = new Question()
+	Question model = new Question(id:0, question:'something', category:'testing', answer:'no answer yet')
 
-	Closure<Question> mapFromJson = {Map rowMap ->
-		def questionMap = new JsonSlurper().parseText(rowMap.get('json'))
+
+	Closure<Question> mapFromData = { String jsonData, BigInteger id ->
+		def questionMap = new JsonSlurper().parseText(jsonData)
 		Question question = new Question(questionMap)
-		question.id = rowMap.get('id')
+		question.id = id
 		question
 	}
 	
@@ -97,11 +98,9 @@ class QuizView extends Composite{
 	QuizView(Composite parent){
 		super(parent, SWT.NONE)
 	
-		
-		def list = cache.db.getAll(Question.class.getName())
-		list.forEach({Map item ->
-			model = mapFromJson.call(item)
-		})
+		//list of questions
+		def list = cache.db.getAll(Question.class.getName(), mapFromData)
+		//list.each { println it.id }
 
 		value.setValue(model)
 		//domain entity is then bound to the ui controls
@@ -171,10 +170,6 @@ class QuizView extends Composite{
 	private def persist() {
 		cache.db.persist(model)
 		//test loading the persisted value
-		Map result = cache.db.get(model.id)
-		
-		
-		Question loadedQuestion = mapFromJson(result)
-		println loadedQuestion.question
+		Question loadedQuestion = cache.db.get(model.id, mapFromData)
 	}
 }
