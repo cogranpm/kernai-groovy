@@ -168,10 +168,10 @@ class QuizView extends Composite{
 		
 		lblError = ControlsFactory.errorLabel(editComposite)
 		Label lblQuestion = ControlsFactory.label(editComposite, "Question")
-		txtQuestion = new Text(editComposite, SWT.NONE)
+		txtQuestion = ControlsFactory.text(editComposite, true)
 		
 		Label lblAnswer = ControlsFactory.label(editComposite, "Answer")
-		txtAnswer = new Text(editComposite, SWT.NONE)
+		txtAnswer = ControlsFactory.text(editComposite, true)
 		
 		
 		Button btnSave = ControlsFactory.button(buttonsBar, "&Save"){persist()}
@@ -194,13 +194,7 @@ class QuizView extends Composite{
 		*/
 		//addBindings()
 		
-		GridDataFactory.fillDefaults().span(2, 1).applyTo(lblError)
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtQuestion)
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAnswer)
-
-		
 		sashForm.setWeights([1, 3] as int[])
-		
 		setLayout(new FillLayout())
 		addListBindings()
 	}

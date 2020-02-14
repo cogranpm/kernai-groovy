@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
+import org.eclipse.swt.widgets.Text
 
 class ControlsFactory {
 	
@@ -73,6 +74,12 @@ class ControlsFactory {
 		Label label = new Label(parent, SWT.NONE)
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(label)
 		label
+	}
+	
+	static Text text(Composite parent, Boolean fill = true) {
+		Text text = new Text(parent, SWT.NONE)
+		GridDataFactory.fillDefaults().grab(fill, false).applyTo(text)
+		text
 	}
 
 }
