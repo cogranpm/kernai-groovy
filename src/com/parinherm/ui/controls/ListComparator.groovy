@@ -19,11 +19,11 @@ class ListComparator extends ViewerComparator {
 			direction = 1 - direction
 		} else {
 			this.propertyIndex = column
-			direction = SWT.DOWN
+			direction = DESCENDING
 		}
 	}
 	
 	int getDirection() {
-		direction == 1  ? SWT.DOWN : SWT.UP
+		(direction == DESCENDING)  ? SWT.DOWN : SWT.UP
 	}
 }

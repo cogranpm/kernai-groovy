@@ -74,13 +74,17 @@ import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Table
+import org.eclipse.swt.widgets.TableColumn
 import org.eclipse.swt.widgets.Text
 import org.eclipse.swt.widgets.Display
 
@@ -88,6 +92,7 @@ import com.parinherm.converters.BooleanNullConverter
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.Question
 import com.parinherm.ui.controls.ControlsFactory
+import com.parinherm.ui.controls.ListComparator
 import com.parinherm.validators.CompoundValidator
 import com.parinherm.validators.EmptyStringValidator
 
@@ -160,10 +165,13 @@ class QuizView extends Composite{
 		//value.setValue(wm)
 		def sashForm = new SashForm(this, SWT.HORIZONTAL)
 		
-		def listComposite = ControlsFactory.listContainer(sashForm)
+		def listSection = ControlsFactory.listSection(sashForm)
 		def mainComposite = ControlsFactory.editContainer(sashForm)
 		def buttonsBar = ControlsFactory.toolbar(mainComposite)
 		def editComposite = ControlsFactory.editForm(mainComposite)
+		
+		//only the tableviewer can appear in this composite
+		def listComposite = ControlsFactory.listContainer(listSection)
 		
 		/* list */
 		
@@ -172,7 +180,24 @@ class QuizView extends Composite{
 			updateUserInterface(Optional.ofNullable(selection.firstElement as Question))
 			
 		}
-		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, "Question", "Answer") 
+		List columnDefs = [ [name: 'Question', sort: true], [name: 'Answer', sort: true]]
+		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, new InnerViewerComparator(), columnDefs) 
+		
+		//testing out the column sorting
+		/*
+			TableColumn column = listView.table.columns[0]
+			column.addSelectionListener(new SelectionAdapter() {
+				 
+				@Override
+				void widgetSelected(SelectionEvent e) {
+					ListComparator viewerComparator = listView.getComparator() as ListComparator
+					viewerComparator.column = 0
+					listView.table.sortDirection = viewerComparator.direction
+					listView.table.setSortColumn(column)
+					listView.refresh()
+				}
+			})
+		*/
 		
 		def title = ControlsFactory.title(editComposite, "Questions")
 		lblError = ControlsFactory.errorLabel(editComposite)
@@ -338,5 +363,38 @@ class QuizView extends Composite{
 		//test loading the persisted value
 		Question loadedQuestion = cache.db.get(model.id, mapFromData)
 		println "saved: $loadedQuestion"
+	}
+	
+	class InnerViewerComparator extends ListComparator {
+		
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			int val = 0
+			switch (this.propertyIndex) {
+				case 0:
+					val = compareQuestion(e1 as Question, e2 as Question)
+					break
+				case 1:
+					val = compareAnswer(e1 as Question, e2 as Question)
+					break
+				default:
+					val = 0
+			}
+			(this.direction == DESCENDING) ? -val : val 
+		}
+		
+		private int compareQuestion(Question a, Question b) {
+			if (a == null || b == null) {
+				return 0
+			}
+			a.question.compareTo(b.question)
+		}
+		
+		private int compareAnswer(Question a, Question b) {
+			if (a == null || b == null) {
+				return 0
+			}
+			a.answer.compareTo(b.answer)
+		}
 	}
 }

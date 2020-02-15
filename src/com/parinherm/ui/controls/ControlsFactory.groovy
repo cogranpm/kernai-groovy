@@ -35,6 +35,12 @@ class ControlsFactory {
 		composite
 	}
 	
+	static Composite listSection(Composite parent) {
+		Composite composite = new Composite(parent, SWT.BORDER)
+		composite.setLayout(new FillLayout(SWT.VERTICAL))
+		composite
+	}
+	
 	static Composite listContainer(Composite parent) {
 		Composite composite = new Composite(parent, SWT.BORDER)
 		composite.setLayout(new FillLayout(SWT.VERTICAL))
@@ -56,26 +62,30 @@ class ControlsFactory {
 	}
 	
 	
-	static TableViewer listView(Composite parent, ObservableListContentProvider contentProvider, Closure selectionHandler, String... columns ) {
+	static TableViewer listView(Composite parent, ObservableListContentProvider contentProvider, Closure selectionHandler, ViewerComparator comparator, List columnDefs ) {
 		def listView = new TableViewer(parent, SWT.NONE)
+		listView.setComparator(comparator)
 		def listTable = listView.getTable()
 		listTable.setHeaderVisible(true)
 		listTable.setLinesVisible(true)
 		TableColumnLayout tableLayout = new TableColumnLayout()
-		parent.setLayout(tableLayout)
-		columns.eachWithIndex { name, index -> 
-			def column = TableViewerColumnHelper.getColumn(name, listView, tableLayout)
-			column.getColumn().addSelectionListener(new SelectionAdapter() {
-				 
-				@Override
-				void widgetSelected(SelectionEvent e) {
-					ListComparator comparator = listView.getComparator() as ListComparator
-					comparator.column = index
-					listView.getTable().sortDirection = comparator.direction
-					listView.table.setSortColumn(column.column)
-					listView.refresh()
-				}
-			})
+		parent.layout = tableLayout
+		columnDefs.eachWithIndex { Map item, index ->
+			 
+			def column = TableViewerColumnHelper.getColumn(item.name, listView, tableLayout)
+			if (item.sort) {
+				column.column.addSelectionListener(new SelectionAdapter() {
+					 
+					@Override
+					void widgetSelected(SelectionEvent e) {
+						ListComparator viewerComparator = listView.getComparator() as ListComparator
+						viewerComparator.column = index
+						listView.table.sortDirection = viewerComparator.direction
+						listView.table.sortColumn = column.column
+						listView.refresh()
+					}
+				})
+			}
 		}
 		listView.setContentProvider(contentProvider)
 		listView.addSelectionChangedListener(selectionHandler)
