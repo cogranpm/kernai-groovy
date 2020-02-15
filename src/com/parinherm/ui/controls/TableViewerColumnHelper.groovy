@@ -11,7 +11,7 @@ class TableViewerColumnHelper {
 	static TableViewerColumn getColumn(String label, Viewer viewer, TableColumnLayout layout) {
 		TableViewerColumn column = new TableViewerColumn(viewer, SWT.LEFT)
 		column.getColumn().setText(label)
-		column.getColumn().setResizable(false)
+		column.getColumn().setResizable(true)
 		column.getColumn().setMoveable(false)
 		layout.setColumnData(column.getColumn(), new ColumnWeightData(100))
 		column

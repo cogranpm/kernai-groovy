@@ -7,7 +7,10 @@ import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
@@ -60,7 +63,20 @@ class ControlsFactory {
 		listTable.setLinesVisible(true)
 		TableColumnLayout tableLayout = new TableColumnLayout()
 		parent.setLayout(tableLayout)
-		columns.each { TableViewerColumnHelper.getColumn(it, listView, tableLayout) }
+		columns.eachWithIndex { name, index -> 
+			def column = TableViewerColumnHelper.getColumn(name, listView, tableLayout)
+			column.getColumn().addSelectionListener(new SelectionAdapter() {
+				 
+				@Override
+				void widgetSelected(SelectionEvent e) {
+					ListComparator comparator = listView.getComparator() as ListComparator
+					comparator.column = index
+					listView.getTable().sortDirection = comparator.direction
+					listView.table.setSortColumn(column.column)
+					listView.refresh()
+				}
+			})
+		}
 		listView.setContentProvider(contentProvider)
 		listView.addSelectionChangedListener(selectionHandler)
 		listView

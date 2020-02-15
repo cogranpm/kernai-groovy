@@ -1,8 +1,8 @@
 package com.parinherm.persistence
 
-//todo remove this
+
 import com.parinherm.domain.BaseEntity
-import com.parinherm.domain.IEntity
+
 
 
 
