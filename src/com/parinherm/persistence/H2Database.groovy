@@ -2,7 +2,7 @@ package com.parinherm.persistence
 
 import java.util.logging.*
 
-import com.parinherm.domain.IEntity
+import com.parinherm.domain.BaseEntity
 
 import groovy.json.JsonGenerator
 import groovy.sql.Sql
@@ -48,14 +48,14 @@ class H2Database implements IDatabase {
 		db.execute(tableddl)
 	}
 	
-	def delete(IEntity model) {
+	def delete(BaseEntity model) {
 		String delete = """\
 		DELETE FROM $table WHERE $id_field = ?;
 		""".stripIndent()
 		db.execute(delete, [model.id])
 	}
 	
-	def persist(IEntity model) {
+	def persist(BaseEntity model) {
 		
 		def json = jsonOutputter.toJson(model)
 		if (!model.newFlag) {
@@ -69,14 +69,14 @@ class H2Database implements IDatabase {
 
 	}
 	
-	private def update(json, IEntity model) {
+	private def update(json, BaseEntity model) {
 		def update = """\
 			UPDATE $table SET $data_field  = ? $json_format WHERE $id_field = ?;
 			""".stripIndent()
 		def count = db.executeUpdate update, [json, model.id]
 	}
 	
-	private def insert(json, IEntity model) {
+	private def insert(json, BaseEntity model) {
 		def clazz = model.getClass().getName()
 		def insert = """\
 			INSERT INTO $table ($entityclass_field, $data_field) VALUES (?, ? $json_format);

@@ -290,7 +290,8 @@ class QuizView extends Composite{
 		
 		
 		IObservableValue save = WidgetProperties.enabled().observe(btnSave)
-		IObservableValue mdirty= BeanProperties.value("dirtyFlag").observe(model)
+		//IObservableValue mdirty= BeanProperties.value("dirtyFlag").observe(model)
+		IObservableValue mdirty= BeanProperties.value("dirtyFlag").observeDetail(value)
 		def dirtyBinding = dbc.bindValue(save, mdirty)
 		
 

@@ -5,11 +5,13 @@ import groovy.transform.Canonical
 
 @Canonical
 @Bindable
-class Question implements IEntity {
-	BigInteger id
+class Question extends BaseEntity {
+	//BigInteger id
 	String question
 	String category
 	String answer
-	Boolean dirtyFlag
-	Boolean newFlag
+	//Boolean dirtyFlag
+	//Boolean newFlag
+	
+
 }
