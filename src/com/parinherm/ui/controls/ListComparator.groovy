@@ -17,7 +17,6 @@ class ListComparator extends ViewerComparator {
 	void setColumn(int column) {
 		if(column == this.propertyIndex) {
 			this.direction = 1 - this.direction
-			println this.direction
 		} else {
 			this.propertyIndex = column
 			this.direction = DESCENDING
