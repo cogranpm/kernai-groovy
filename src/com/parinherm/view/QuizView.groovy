@@ -70,27 +70,25 @@ import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
-import org.eclipse.jface.dialogs.MessageDialog
+import org.eclipse.jface.viewers.ComboViewer
 import org.eclipse.jface.viewers.ILabelProvider
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
-import org.eclipse.swt.events.SelectionAdapter
-import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Table
-import org.eclipse.swt.widgets.TableColumn
 import org.eclipse.swt.widgets.Text
-import org.eclipse.swt.widgets.Display
 
 import com.parinherm.converters.BooleanNullConverter
+import com.parinherm.converters.ListItemConverters
 import com.parinherm.domain.DomainTest
 import com.parinherm.domain.Question
+import com.parinherm.domain.QuizCategoriesList
 import com.parinherm.ui.controls.ControlsFactory
 import com.parinherm.ui.controls.ListComparator
 import com.parinherm.validators.CompoundValidator
@@ -107,6 +105,7 @@ class QuizView extends Composite{
 	Table listTable 
 	Text txtQuestion
 	Text txtAnswer
+	ComboViewer cboCategories
 	Label lblError
 	WritableValue value = new WritableValue()
 	WritableList wl 
@@ -191,6 +190,8 @@ class QuizView extends Composite{
 		Label lblAnswer = ControlsFactory.label(editComposite, "Answer")
 		txtAnswer = ControlsFactory.text(editComposite, true)
 		
+		Label lblCategory = ControlsFactory.label(editComposite, "Category")
+		cboCategories = ControlsFactory.comboViewer(editComposite, QuizCategoriesList.items)
 		
 		btnSave = ControlsFactory.button(buttonsBar, "&Save"){persist()}
 		btnSave.enabled = false
@@ -267,6 +268,10 @@ class QuizView extends Composite{
 
 		final IObservableValue co_answer = WidgetProperties.text(SWT.Modify).observe(txtAnswer)
 		final IObservableValue mo_answer = BeanProperties.value("answer").observeDetail(value)
+		
+		final IObservableValue co_categroy = ViewerProperties.singleSelection().observe(cboCategories)
+		final IObservableValue mo_category = BeanProperties.value("category").observeDetail(value)
+		
 
 		
 		// create a validators library
@@ -284,6 +289,9 @@ class QuizView extends Composite{
   
 		def binding_question = dbc.bindValue(co_question, mo_question, updateStrategy, null)
 		def binding_answer = dbc.bindValue(co_answer, mo_answer, null, null)
+		def binding_category = dbc.bindValue(co_categroy, mo_category,
+			UpdateValueStrategy.create(ListItemConverters.convertListItemDetail), 
+			UpdateValueStrategy.create(ListItemConverters.convertToListItemDetail))
 		def errorDecorator = ControlDecorationSupport.create(binding_question, SWT.TOP | SWT.LEFT)
 		
 		// error label binding
@@ -320,9 +328,9 @@ class QuizView extends Composite{
 	}
 	
 	private def enableUserInterface(Boolean enable) {
-		txtAnswer.enabled = enable
-		txtQuestion.enabled = enable	
-		
+		txtAnswer?.enabled = enable
+		txtQuestion?.enabled = enable	
+		cboCategories?.combo?.enabled = enable
 	}
 	
 	private def updateUserInterface(Optional<Question> entity) {

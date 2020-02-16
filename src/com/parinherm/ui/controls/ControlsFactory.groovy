@@ -6,6 +6,9 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.viewers.ArrayContentProvider
+import org.eclipse.jface.viewers.ComboViewer
+import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
@@ -20,6 +23,9 @@ import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
+import com.parinherm.domain.DataTypesList
+import com.parinherm.domain.ListItemDetail
+
 class ControlsFactory {
 	
 	static Button button(Composite parent, String text, Integer style = SWT.PUSH, Closure handler) {
@@ -27,6 +33,23 @@ class ControlsFactory {
 		button.text = text
 		button.addSelectionListener(widgetSelectedAdapter(handler))
 		button
+	}
+	
+	static ComboViewer comboViewer(Composite parent, List<ListItemDetail> input) {
+		def combo = new ComboViewer(parent)
+		combo.contentProvider = ArrayContentProvider.getInstance()
+		def labelProvider = new LabelProvider() {
+			@Override
+			public String getText(Object element)
+			{
+				ListItemDetail item = element as ListItemDetail
+				item.description
+			}
+		}
+		combo.labelProvider = labelProvider
+		combo.input = input
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(combo.combo)
+		combo
 	}
 	
 	static Composite toolbar(Composite parent) {
