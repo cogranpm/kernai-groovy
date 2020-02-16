@@ -12,5 +12,9 @@ import groovy.transform.Canonical
 class ListItemDetail {
 	String description
 	String code
+	
+	public static ListItemDetail findByCode(String code, List<ListItemDetail> items) {
+		items.find { x -> x.code == code }
+	}
 }
 

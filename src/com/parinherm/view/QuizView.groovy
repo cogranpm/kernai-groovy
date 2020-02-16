@@ -291,7 +291,7 @@ class QuizView extends Composite{
 		def binding_answer = dbc.bindValue(co_answer, mo_answer, null, null)
 		def binding_category = dbc.bindValue(co_categroy, mo_category,
 			UpdateValueStrategy.create(ListItemConverters.convertListItemDetail), 
-			UpdateValueStrategy.create(ListItemConverters.convertToListItemDetail))
+			UpdateValueStrategy.create(ListItemConverters.makeConverter(QuizCategoriesList.items)))
 		def errorDecorator = ControlDecorationSupport.create(binding_question, SWT.TOP | SWT.LEFT)
 		
 		// error label binding

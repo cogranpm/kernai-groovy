@@ -15,8 +15,20 @@ class ListItemConverters {
 	
 	//converting from a field type to a lookup type
 	//need to create a finder method to do it
+	/*
 	public final static IConverter convertToListItemDetail = IConverter.create(String.class, ListItemDetail.class,
 		{ 
-			String o -> DataTypesList.findByCode(o)}
-		)
+			String o -> 
+			def item = ListItemDetail.findByCode(o, QuizCategoriesList.items)
+			item
+		})
+	*/
+	
+	 static IConverter makeConverter(List items) {
+		 return IConverter.create(String.class, ListItemDetail.class, {
+			 String o ->
+			 def item = ListItemDetail.findByCode(o, items)
+			 item
+		 })
+	 }
 }

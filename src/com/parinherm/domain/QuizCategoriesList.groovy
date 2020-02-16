@@ -7,7 +7,5 @@ class QuizCategoriesList {
 		
 	public static List<ListItemDetail> items = [itemGeneral, itemGroovy]
 	
-	public static ListItemDetail findByCode(String code) {
-		items.find { x -> x.code == code }
-	}
+
 }
