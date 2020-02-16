@@ -182,23 +182,7 @@ class QuizView extends Composite{
 		}
 		List columnDefs = [ [name: 'Question', sort: true], [name: 'Answer', sort: true]]
 		listView = ControlsFactory.listView(listComposite, contentProvider, listSelectionHandler, new InnerViewerComparator(), columnDefs) 
-		
-		//testing out the column sorting
-		/*
-			TableColumn column = listView.table.columns[0]
-			column.addSelectionListener(new SelectionAdapter() {
-				 
-				@Override
-				void widgetSelected(SelectionEvent e) {
-					ListComparator viewerComparator = listView.getComparator() as ListComparator
-					viewerComparator.column = 0
-					listView.table.sortDirection = viewerComparator.direction
-					listView.table.setSortColumn(column)
-					listView.refresh()
-				}
-			})
-		*/
-		
+
 		def title = ControlsFactory.title(editComposite, "Questions")
 		lblError = ControlsFactory.errorLabel(editComposite)
 		Label lblQuestion = ControlsFactory.label(editComposite, "Question")
@@ -214,7 +198,6 @@ class QuizView extends Composite{
 		btnNew = ControlsFactory.button(buttonsBar, "&New"){
 			Question newModel = new Question(id: 0, dirtyFlag: true, newFlag: true)
 			updateUserInterface(Optional.ofNullable(newModel))
-			wl.add(newModel)
 		}
 		
 		btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
@@ -359,7 +342,9 @@ class QuizView extends Composite{
 	}
 	
 	private def persist() {
+		Boolean wasNew = model.newFlag
 		cache.db.persist(model)
+		if (wasNew) { wl.add(model)}
 		//test loading the persisted value
 		Question loadedQuestion = cache.db.get(model.id, mapFromData)
 		println "saved: $loadedQuestion"
