@@ -4,9 +4,9 @@ import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
 
 class ListComparator extends ViewerComparator {
-	protected final static int DESCENDING = 1
-	protected int direction = DESCENDING
-	protected int propertyIndex
+	protected final static Integer DESCENDING = 1
+	protected Integer direction = DESCENDING
+	protected Integer propertyIndex
 	
 	ListComparator() {
 		super()
@@ -16,14 +16,19 @@ class ListComparator extends ViewerComparator {
 	
 	void setColumn(int column) {
 		if(column == this.propertyIndex) {
-			direction = 1 - direction
+			this.direction = 1 - this.direction
+			println this.direction
 		} else {
 			this.propertyIndex = column
-			direction = DESCENDING
+			this.direction = DESCENDING
 		}
 	}
 	
 	int getDirection() {
-		(direction == DESCENDING)  ? SWT.DOWN : SWT.UP
+		if (this.direction == DESCENDING) {
+			return SWT.DOWN
+		} else {
+			return SWT.UP
+		}
 	}
 }

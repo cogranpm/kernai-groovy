@@ -380,7 +380,8 @@ class QuizView extends Composite{
 				default:
 					val = 0
 			}
-			(this.direction == DESCENDING) ? -val : val 
+			(this.direction == SWT.DOWN) ? -val : val
+				
 		}
 		
 		private int compareQuestion(Question a, Question b) {

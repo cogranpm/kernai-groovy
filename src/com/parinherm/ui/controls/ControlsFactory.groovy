@@ -82,7 +82,8 @@ class ControlsFactory {
 						viewerComparator.column = index
 						listView.table.sortDirection = viewerComparator.direction
 						listView.table.sortColumn = column.column
-						listView.refresh()
+						println viewerComparator.direction
+						listView.refresh(true)
 					}
 				})
 			}
