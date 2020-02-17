@@ -1,5 +1,7 @@
 package com.parinherm.persistence
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.logging.*
 
 import com.parinherm.domain.BaseEntity
@@ -11,7 +13,11 @@ class H2Database implements IDatabase {
 	
 	Logger logger = Logger.getLogger('groovy.sql')
 	Sql db
-	JsonGenerator jsonOutputter = new JsonGenerator.Options().excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag').build()
+	JsonGenerator jsonOutputter = new JsonGenerator.Options()
+	.addConverter(LocalDateTime){
+		'"' + it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + '"'
+	}
+	.excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag', 'createdOn', 'updatedOn').build()
 	private final String table = 'ENTITYDATA'
 	private final String id_field = 'ID'
 	private final String entityclass_field = 'ENTITYCLASS'
@@ -56,12 +62,14 @@ class H2Database implements IDatabase {
 	}
 	
 	def persist(BaseEntity model) {
-		
-		def json = jsonOutputter.toJson(model)
 		if (!model.newFlag) {
+			model.updatedOn = LocalDateTime.now()
+			def json = jsonOutputter.toJson(model)
 			update(json, model)
 		}
 		else {
+			model.createdOn = LocalDateTime.now()
+			def json = jsonOutputter.toJson(model)
 			insert(json, model)
 		}
 		model.dirtyFlag = false
