@@ -62,6 +62,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
+import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.observable.value.WritableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
@@ -296,7 +297,11 @@ class QuizView extends Composite{
 		
 		// error label binding
 		final IObservableValue errorObservable = WidgetProperties.text().observe(lblError)
-		def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null)
+		//def allValidationBinding = dbc.bindValue(errorObservable, new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY), null, null)
+		def aggValStatus = new AggregateValidationStatus(dbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY)
+		def isValidationOK = ComputedValue.create({ -> aggValStatus.getValue().isOK()})
+		def saveBtnObservable = WidgetProperties.enabled().observe(btnSave)
+		dbc.bindValue(saveBtnObservable, isValidationOK)
 		
 		IObservableList bindings = dbc.getValidationStatusProviders()
 		bindings.each { element ->
