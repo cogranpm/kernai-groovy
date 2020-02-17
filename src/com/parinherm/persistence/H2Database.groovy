@@ -15,9 +15,9 @@ class H2Database implements IDatabase {
 	Sql db
 	JsonGenerator jsonOutputter = new JsonGenerator.Options()
 	.addConverter(LocalDateTime){
-		'"' + it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + '"'
+		 it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 	}
-	.excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag', 'createdOn', 'updatedOn').build()
+	.excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag').build()
 	private final String table = 'ENTITYDATA'
 	private final String id_field = 'ID'
 	private final String entityclass_field = 'ENTITYCLASS'

@@ -123,12 +123,7 @@ class QuizView extends Composite{
 	Question model
 
 
-	Closure<Question> mapFromData = { String jsonData, BigInteger id ->
-		def questionMap = new JsonSlurper().parseText(jsonData)
-		Question question = new Question(questionMap)
-		question.id = id
-		question
-	}
+	
 	
 	DomainTest selectedItem = null
 	
@@ -250,7 +245,7 @@ class QuizView extends Composite{
 				}
 
 		listView.setLabelProvider(labelProvider)
-		def list = cache.db.getAll(Question.class.getName(), mapFromData)
+		def list = cache.db.getAll(Question.class.getName(), Question.mapFromData)
 		wl = new WritableList(list, Question.class)
 		listView.setInput(wl)
 
@@ -359,7 +354,7 @@ class QuizView extends Composite{
 		cache.db.persist(model)
 		if (wasNew) { wl.add(model)}
 		//test loading the persisted value
-		Question loadedQuestion = cache.db.get(model.id, mapFromData)
+		Question loadedQuestion = cache.db.get(model.id, Question.mapFromData)
 		println "saved: $loadedQuestion"
 	}
 	
