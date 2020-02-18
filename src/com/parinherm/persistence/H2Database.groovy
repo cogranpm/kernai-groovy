@@ -4,9 +4,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.logging.*
 
+import com.parinherm.converters.LocalDateTimeConverter
 import com.parinherm.domain.BaseEntity
 
 import groovy.json.JsonGenerator
+import groovy.json.JsonSlurper
 import groovy.sql.Sql
 
 class H2Database implements IDatabase {
@@ -17,7 +19,7 @@ class H2Database implements IDatabase {
 	.addConverter(LocalDateTime){
 		 it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 	}
-	.excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag').build()
+	.excludeFieldsByName('propertyChangeListeners', 'dirtyFlag', 'newFlag', 'mapFromData').build()
 	private final String table = 'ENTITYDATA'
 	private final String id_field = 'ID'
 	private final String entityclass_field = 'ENTITYCLASS'
@@ -96,7 +98,12 @@ class H2Database implements IDatabase {
 	def get(BigInteger id, Closure mapper) {
 		def select = "SELECT $data_field $json_format FROM $table WHERE $id_field = :id"
 		def row = db.firstRow(select, [id: id])
-		def entity = mapper.call(new String(row[0]), id)
+		def jsonRaw = new String(row[0])
+		def dataMap = new JsonSlurper().parseText(jsonRaw)
+		//have to parse any localdatetime attributes from string representation in database
+		dataMap.updatedOn = LocalDateTimeConverter.convertFromString(dataMap.updatedOn)
+		dataMap.createdOn = LocalDateTimeConverter.convertFromString(dataMap.createdOn)
+		def entity = mapper.call(dataMap, id)
 		entity
 	}
 
@@ -112,7 +119,11 @@ class H2Database implements IDatabase {
 			def id = row[0]
 			def clazzName = row[1]
 			def jsonRaw = new String(row[2])
-			def entity = mapper.call(jsonRaw, new BigInteger(id)) 
+			def dataMap = new JsonSlurper().parseText(jsonRaw)
+			//have to parse any localdatetime attributes from string representation in database
+			dataMap.updatedOn = LocalDateTimeConverter.convertFromString(dataMap.updatedOn)
+			dataMap.createdOn = LocalDateTimeConverter.convertFromString(dataMap.createdOn)
+			def entity = mapper.call(dataMap, new BigInteger(id)) 
 			list << entity
 		}
 	
